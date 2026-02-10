@@ -7,18 +7,18 @@
 
     <Grid Margin="20">
         <StackPanel VerticalAlignment="Center">
-            <TextBlock Text="PROJECT: PROG2510 – A07 – Project"
+            <TextBlock Text="PROJECT: PROG2126 – A02 – TCPIP"
                        FontWeight="Bold" FontSize="14" TextAlignment="Center" Margin="0,0,0,10"/>
 
-            <TextBlock Text="PROGRAMMER: Josh Visentin"
+            <TextBlock Text="PROGRAMMERS: Josh Visentin, Jonathan Paventi, Trent Beitz"
                        FontSize="13" TextAlignment="Center" Margin="0,0,0,5"/>
 
-            <TextBlock Text="FIRST VERSION: 2025-11-22"
+            <TextBlock Text="FIRST VERSION: 2026-02-10"
                        FontSize="13" TextAlignment="Center" Margin="0,0,0,15"/>
 
             <TextBlock Text="DESCRIPTION:"
                        FontWeight="Bold" FontSize="13" Margin="0,0,0,5"/>
-            <TextBlock Text="This program demonstrates a LAN messaging system where a Windows Service receives messages from WPF clients and broadcasts them to all users using synchronous TCP."
+            <TextBlock Text="This project simulates a game that involves a Client and Server interaction."
                        TextWrapping="Wrap" FontSize="12" Margin="0,0,0,15"/>
 
             <Button Content="OK" Width="80" Height="30" HorizontalAlignment="Center"
