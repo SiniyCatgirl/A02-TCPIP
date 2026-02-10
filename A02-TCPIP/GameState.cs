@@ -7,12 +7,6 @@
 *                       the server will 
 */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace A02_TCPIP {
     internal class GameState {
         private Guid gameID;
@@ -29,12 +23,18 @@ namespace A02_TCPIP {
                 return gameID;
             }
         }
-
+        
         public int CurrentGuessNumber {
             get{
                 return currentGuessNumber;
             } set {
                 currentGuessNumber = value;
+            }
+        }
+
+        public string CurrentGameFile {
+            get{
+                return currentGameFile;
             }
         }
 
@@ -60,11 +60,11 @@ namespace A02_TCPIP {
         Parameters    : List<string> listOfFiles    :   
         Return Values : N/A
         */
-        public GameState(List<string> listOfFiles) {
+        public GameState(string path) {
             gameID = Guid.NewGuid();
             currentGameFile = string.Empty;
             previousGameFiles = new List<string>();
-            listOfGameFiles = listOfFiles;
+            listOfGameFiles = FileIO.GetListOfFiles(path);
             NewGame();
 
             return;

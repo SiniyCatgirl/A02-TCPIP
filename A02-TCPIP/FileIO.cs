@@ -6,8 +6,6 @@
 *   DESCRIPTION     :   
 */
 
-using System.IO;
-
 namespace A02_TCPIP {
     internal class FileIO {
 
@@ -65,13 +63,12 @@ namespace A02_TCPIP {
                         GameState game  : 
         Return Values : bool            :
         */
-        internal static bool CheckWordList(string path, string word, GameState game){
+        internal static bool CheckWordList(string path, string word){
             bool correctGuess = false;
 
             try {
                 string[] listOfWords = File.ReadLines(path).Skip(2).ToArray();
                 correctGuess = listOfWords.Contains(word, StringComparer.OrdinalIgnoreCase);
-                game.AddGuess(word);
             } catch (Exception e) { 
                 Logger.LogMessage($"Error reading file: {e.Message}");
             }

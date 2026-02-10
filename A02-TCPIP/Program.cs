@@ -6,8 +6,6 @@
 *   DESCRIPTION     :   
 */
 
-using System.Configuration;
-
 namespace A02_TCPIP {
     class Program {
         private static CancellationTokenSource cts = new CancellationTokenSource();
@@ -15,13 +13,9 @@ namespace A02_TCPIP {
 
         static async Task Main(string[] args) {
             CancellationToken token = cts.Token;
-            string dirPath = ConfigurationManager.AppSettings["FileList"];
-            List<string> listOfFiles = FileIO.GetListOfFiles(dirPath);
 
             ServerListener listener = new ServerListener();
-            GameState game = new GameState(listOfFiles);
-            clients.Add(game.GameID, game);
-            Task serverListener = listener.StartListener(token);
+            Task serverListener = listener.Listener(token);
 
             await Task.WhenAll(serverListener);
 
