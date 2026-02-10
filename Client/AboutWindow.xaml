@@ -1,0 +1,28 @@
+﻿<Window x:Class="TCP_Client.AboutWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="About" Height="300" Width="400"
+        ResizeMode="NoResize" WindowStartupLocation="CenterOwner"
+        WindowStyle="ToolWindow">
+
+    <Grid Margin="20">
+        <StackPanel VerticalAlignment="Center">
+            <TextBlock Text="PROJECT: PROG2510 – A07 – Project"
+                       FontWeight="Bold" FontSize="14" TextAlignment="Center" Margin="0,0,0,10"/>
+
+            <TextBlock Text="PROGRAMMER: Josh Visentin"
+                       FontSize="13" TextAlignment="Center" Margin="0,0,0,5"/>
+
+            <TextBlock Text="FIRST VERSION: 2025-11-22"
+                       FontSize="13" TextAlignment="Center" Margin="0,0,0,15"/>
+
+            <TextBlock Text="DESCRIPTION:"
+                       FontWeight="Bold" FontSize="13" Margin="0,0,0,5"/>
+            <TextBlock Text="This program demonstrates a LAN messaging system where a Windows Service receives messages from WPF clients and broadcasts them to all users using synchronous TCP."
+                       TextWrapping="Wrap" FontSize="12" Margin="0,0,0,15"/>
+
+            <Button Content="OK" Width="80" Height="30" HorizontalAlignment="Center"
+                    Click="Ok_Click" Background="#0078D7" Foreground="White" FontWeight="Bold"/>
+        </StackPanel>
+    </Grid>
+</Window>
