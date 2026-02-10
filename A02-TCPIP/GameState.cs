@@ -54,38 +54,57 @@ namespace A02_TCPIP {
         #endregion
 
         // Constructor
+        /*
+        Constructor   : GameState
+        Description   : 
+        Parameters    : List<string> listOfFiles    :   
+        Return Values : N/A
+        */
         public GameState(List<string> listOfFiles) {
             gameID = Guid.NewGuid().ToString();
             currentGameFile = string.Empty;
             previousGameFiles = new List<string>();
             listOfGameFiles = listOfFiles;
-            newGame();
+            NewGame();
 
             return;
         }
 
         /*
-        Method        : 
+        Method        : NewGame
         Description   : 
         Parameters    : N/A
         Return Values : N/A
         */
-        internal void newGame() {
+        internal void NewGame() {
             guesses = new List<string>();
             isGameRunning = true;
             currentGuessNumber = 0;
             guesses.Clear();
-            pickNewFile(currentGameFile);
+            PickNewFile(currentGameFile);
 
             return;
         }
+
+        /*
+        Method        : AddGuess
+        Description   : 
+        Parameters    : string guess    :   
+        Return Values : N/A
+        */
         internal void AddGuess(string guess) {
             Guesses.Add(guess);
 
             return;
         }
 
-        private void pickNewFile(string currentFile){ 
+        /*
+        Method        : PickNewFile
+        Description   : 
+        Parameters    : string currentFile  :   
+        Return Values : N/A
+        */
+        private void PickNewFile(string currentFile){ 
             if (currentFile != string.Empty) previousGameFiles.Add(currentFile);
             if (previousGameFiles.Count != listOfGameFiles.Count) {
                 Random rand = new Random();
