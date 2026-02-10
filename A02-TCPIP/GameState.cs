@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace A02_TCPIP {
     internal class GameState {
-        private string gameID;
+        private Guid gameID;
         private string currentGameFile;
         private int currentGuessNumber;
         private List<string> listOfGameFiles;
@@ -24,7 +24,7 @@ namespace A02_TCPIP {
         private bool isGameRunning;
 
         #region Getters & Setters
-        public string GameID {
+        public Guid GameID {
             get {
                 return gameID;
             }
@@ -61,7 +61,7 @@ namespace A02_TCPIP {
         Return Values : N/A
         */
         public GameState(List<string> listOfFiles) {
-            gameID = Guid.NewGuid().ToString();
+            gameID = Guid.NewGuid();
             currentGameFile = string.Empty;
             previousGameFiles = new List<string>();
             listOfGameFiles = listOfFiles;
