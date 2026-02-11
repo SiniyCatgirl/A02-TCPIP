@@ -15,6 +15,8 @@ namespace Client {
     internal class TimeMonitor {
         private bool gameOver;
         private long timeRemaining;
+        private Stopwatch timer;
+        private GameWindow gm = new GameWindow();
         public TimeMonitor() {
             ResetTimer();
         }
@@ -30,13 +32,18 @@ namespace Client {
                                                     to its caller.
         */
         internal async Task MonitorTime(CancellationToken ct) {
-            while (!ct.IsCancellationRequested) {
-                Stopwatch timer = new Stopwatch();
-                string parseTime = ConfigurationManager.AppSettings["GameTimeLimit"];
-                int.TryParse(parseTime, out int targetTime);
+            timer = new Stopwatch();
+            timer.Start();
+            string parseTime = ConfigurationManager.AppSettings["GameTimeLimit"];
+            int.TryParse(parseTime, out int targetTime);
 
+            while (!ct.IsCancellationRequested) {
                 while (timer.ElapsedMilliseconds < (targetTime * 1000)) {
                     Thread.Sleep(100);
+                    if (timeRemaining != (timer.ElapsedMilliseconds - targetTime) / 1000) { 
+                        timeRemaining = (timer.ElapsedMilliseconds / 1000);
+                        gm.UpdateTimer(timeRemaining.ToString());
+                    }
                 }
 
                 //if time runs out, send gameover timeout.
@@ -53,6 +60,8 @@ namespace Client {
         internal void ResetTimer(){ 
             timeRemaining = long.Parse(ConfigurationManager.AppSettings["GameTimeLimit"]);
             gameOver = false;
+            timer.Restart();
+            gm.UpdateTimer(timeRemaining.ToString());
         }
 
         /*

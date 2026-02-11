@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
-using System.Data.SqlClient;
-using System.Linq;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -11,12 +9,10 @@ using System.Threading.Tasks;
 using SharedDefines;
 
 namespace Client {
-    internal class ClientListener {
+    internal class ClientRequestor {
         //Should change this to instead of perma listening maybe have a param of what to send then send once and wait for response.
         //there is no need to be listening all the time when server only sends responses.
         internal async Task Listener(CancellationToken ct) {
-            TcpListener clientListener = null;
-
             string serverIP = ConfigurationManager.AppSettings["ServerIP"];
             string serverPortStr = ConfigurationManager.AppSettings["ServerPort"];
             string clientBufferSize = ConfigurationManager.AppSettings["BufferSize"];
@@ -25,16 +21,10 @@ namespace Client {
             try {
                 int port = 0;
                 int.TryParse(serverPortStr, out port);
-                IPAddress localAddress = IPAddress.Parse(serverIP);
-
-                clientListener = new TcpListener(localAddress, port);
-                clientListener.Start();
-
-                TcpClient client = new TcpClient();
+                IPAddress ipAddress = IPAddress.Parse(serverIP);
+                TcpClient client = new TcpClient(serverIP, port);
 
                 while (!ct.IsCancellationRequested) {
-                    client = await clientListener.AcceptTcpClientAsync();
-
                     if (!ct.IsCancellationRequested) {
                         NetworkStream stream = client.GetStream();
                         Byte[] serverBytes = new byte[maxBufferSize];
@@ -79,9 +69,7 @@ namespace Client {
                         return;
                     }
                 }
-            } catch (Exception ex) {
-                
-            }
+            } catch (Exception ex) {}
         }
     }
 }

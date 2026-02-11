@@ -1,4 +1,4 @@
-﻿<Window x:Class="Client.MainWindow"
+﻿<Window x:Class="Client.GameWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -30,11 +30,11 @@
             <Label x:Name="labelStringClue" Content="Clue" HorizontalAlignment="Center" Margin="0,11,0,0" VerticalAlignment="Top" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
             <Label x:Name="labelGuess" Content="Guess" HorizontalAlignment="Center" Margin="0,181,0,0" VerticalAlignment="Top" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
             <Label x:Name="labelWordsLeft" Content="Words Left" HorizontalAlignment="Center" Margin="0,293,0,0" VerticalAlignment="Top" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
-            <Button x:Name="btnSubmit" Content="Submit" HorizontalAlignment="Center" Margin="0,235,0,0" VerticalAlignment="Top"/>
+            <Button x:Name="btnSubmit" Content="Submit" HorizontalAlignment="Center" Margin="0,235,0,0" VerticalAlignment="Top" Click="btnSubmit_Click"/>
             <TextBox x:Name="txtWordsLeft" HorizontalAlignment="Center" Margin="0,324,0,0" TextWrapping="Wrap" Text="# of Words Left" VerticalAlignment="Top" Width="120" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" IsReadOnly="True"/>
             <TextBox x:Name="txtTimer" HorizontalAlignment="Center" Margin="0,127,0,0" TextWrapping="Wrap" Text="Timer" VerticalAlignment="Top" Width="120" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" IsReadOnly="True"/>
             <Label x:Name="labelTimer" Content="Timer" HorizontalAlignment="Center" Margin="0,96,0,0" VerticalAlignment="Top" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
-            <Button Content="Start" HorizontalAlignment="Center" Margin="0,260,0,0" VerticalAlignment="Top" Click="Button_Click"/>
+            <Button x:Name="btnStart" Content="Start" HorizontalAlignment="Center" Margin="0,260,0,0" VerticalAlignment="Top" Click="btnStart_Click"/>
 
         </Grid>
     </DockPanel>
