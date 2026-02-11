@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SharedDefines {
+﻿namespace SharedDefines {
     public class Defines {
         public const string ID_PREFIX = "ID: ";
         public const string GUESS_PREFIX = "GUESS: ";
@@ -15,5 +9,6 @@ namespace SharedDefines {
         public const string GAME_OVER_TIMEOUT_PREFIX = GAME_OVER_PREFIX + "TIMEOUT: ";
         public const string GAME_OVER_NEWGAME_PREFIX = GAME_OVER_PREFIX + "NEWGAME: ";
         public const string GAME_OVER_ENDGAME_PREFIX = GAME_OVER_PREFIX + "ENDGAME: ";
+        public const int GUID_SIZE = 36; //GUIDs are 36 characters long.
     }
 }

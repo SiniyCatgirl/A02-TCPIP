@@ -54,7 +54,7 @@ namespace A02_TCPIP {
                     break;
                 case string s when s.StartsWith(Defines.GUESS_PREFIX): // guesses from client
                     Guid clientGameID = Guid.Empty;
-                    Guid.TryParse(s.Substring(Defines.GUESS_PREFIX.Length, (Defines.GUESS_PREFIX.Length + 36)), out clientGameID);
+                    Guid.TryParse(s.Substring(Defines.GUESS_PREFIX.Length, (Defines.GUESS_PREFIX.Length + Defines.GUID_SIZE)), out clientGameID);
                     Program.clients.TryGetValue(clientGameID, out GameState clientGame);
 
                     string guess = msg.Substring(Defines.GUESS_PREFIX.Length + clientGameID.ToString().Length).Trim();
