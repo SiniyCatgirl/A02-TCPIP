@@ -78,6 +78,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ClientListener.cs" />
     <Compile Include="ConfigForm.xaml.cs">
       <DependentUpon>ConfigForm.xaml</DependentUpon>
     </Compile>
@@ -112,6 +113,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SharedDefines\SharedDefines.csproj">
+      <Project>{e800b29f-defd-40a9-aa5e-1ebd6d78556b}</Project>
+      <Name>SharedDefines</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -9,6 +9,7 @@
 using System.Configuration;
 using System.Net.Sockets;
 using System.Text;
+using SharedDefines;
 
 namespace A02_TCPIP {
     internal class Receiver {
@@ -33,70 +34,68 @@ namespace A02_TCPIP {
             NetworkStream stream = client.GetStream();
 
             int i = await stream.ReadAsync(clientBytes, 0, clientBytes.Length, ct);
-            string data = Encoding.ASCII.GetString(clientBytes, 0, i);
+            string msg = Encoding.ASCII.GetString(clientBytes, 0, i);
         
             string dirPath = ConfigurationManager.AppSettings["FileList"];
-            string msg = string.Empty;
+
             string response = string.Empty;
             Byte[] serverBytes = new byte[bufferSize];
+            
+            Logger.LogMessage($"Received {msg}");
 
             switch (msg) {
-                case string s when s.StartsWith("ID: "): //initial contact.
-                    Logger.LogMessage($"Received ID: {msg.Substring(4).Trim()}");
-
+                case string s when s.StartsWith(Defines.ID_PREFIX): //initial contact.
                     GameState game = new GameState(dirPath);
 
                     Program.clients.Add(game.GameID, game);
 
-                    response = "ID: " + game.GameID.ToString();
+                    response = Defines.ID_PREFIX + game.GameID.ToString();
 
                     break;
-                case string s when s.StartsWith("GUESS: "): // guesses from client
-                    string guess = msg.Substring(43).Trim();
-                    Logger.LogMessage($"Received GUESS: {guess}");
-
+                case string s when s.StartsWith(Defines.GUESS_PREFIX): // guesses from client
                     Guid clientGameID = Guid.Empty;
-                    Guid.TryParse(guess.Substring(0, 36), out clientGameID);
+                    Guid.TryParse(s.Substring(Defines.GUESS_PREFIX.Length, (Defines.GUESS_PREFIX.Length + 36)), out clientGameID);
                     Program.clients.TryGetValue(clientGameID, out GameState clientGame);
-                    
+
+                    string guess = msg.Substring(Defines.GUESS_PREFIX.Length + clientGameID.ToString().Length).Trim();
+
                     string guessState = null;
                     if (clientGame.Guesses.Contains(guess)){ 
-                        guessState = "REPEAT: ";
+                        guessState = Defines.GUESS_REPEAT_PREFIX;
                     } else if(FileIO.CheckWordList(clientGame.CurrentGameFile, guess)) {
-                        guessState = "CORRECT: ";
+                        guessState = Defines.GUESS_CORRECT_PREFIX;
                     } else {
-                        guessState = "INCORRECT: ";
+                        guessState = Defines.GUESS_INCORRECT_PREFIX;
                     }
 
-                    response = "GUESS " + guessState + guess;
+                    response = guessState + guess;
 
                     break;
-                case string s when s.StartsWith("GAMEOVER "): //Could be TIMEOUT, NEWGAME, ENDGAME. win or lose.
-                    string gameOverState = msg.Substring(9, 17).Trim();
-                    Logger.LogMessage($"Received GAMEOVER: {gameOverState}");
+                case string s when s.StartsWith(Defines.GAME_OVER_PREFIX): //Could be TIMEOUT, NEWGAME, ENDGAME. win or lose.
+                    response = msg.Substring(0, Defines.GAME_OVER_PREFIX.Length).Trim();
 
                     Guid gameIDToEnd = Guid.Empty;
-                    Guid.TryParse(s.Substring(17), out gameIDToEnd);
+                    Guid.TryParse(s.Substring(Defines.GAME_OVER_PREFIX.Length), out gameIDToEnd);
                     Program.clients.TryGetValue(gameIDToEnd, out GameState gameToEnd);
 
-                    switch (gameOverState) {
-                        case "NEWGAME: ":
+                    switch (response) {
+                        case Defines.GAME_OVER_NEWGAME_PREFIX:
                             gameToEnd.NewGame();
 
                             break;
-                        case "ENDGAME: ":
+                        case Defines.GAME_OVER_ENDGAME_PREFIX:
                             Program.clients.Remove(gameIDToEnd);
 
                             break;
                     }
-                    
-                    response = "GAMEOVER " + gameOverState;
 
                     break;
             }
 
             serverBytes = Encoding.ASCII.GetBytes(response);
             stream.Write(serverBytes, 0, serverBytes.Length);
+
+            return;
         }
     }
 }

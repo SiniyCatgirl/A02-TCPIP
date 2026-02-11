@@ -16,4 +16,8 @@
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SharedDefines\SharedDefines.csproj" />
+  </ItemGroup>
+
 </Project>
