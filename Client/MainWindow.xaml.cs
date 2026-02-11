@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Diagnostics;
+using System.Windows;
 using TCP_Client;
 
 namespace Client {
@@ -28,6 +29,10 @@ namespace Client {
             about.ShowDialog();
 
             return;
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e) {
+            
         }
     }
 }

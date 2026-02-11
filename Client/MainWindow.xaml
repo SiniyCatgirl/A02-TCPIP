@@ -34,6 +34,7 @@
             <TextBox x:Name="txtWordsLeft" HorizontalAlignment="Center" Margin="0,324,0,0" TextWrapping="Wrap" Text="# of Words Left" VerticalAlignment="Top" Width="120" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" IsReadOnly="True"/>
             <TextBox x:Name="txtTimer" HorizontalAlignment="Center" Margin="0,127,0,0" TextWrapping="Wrap" Text="Timer" VerticalAlignment="Top" Width="120" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" IsReadOnly="True"/>
             <Label x:Name="labelTimer" Content="Timer" HorizontalAlignment="Center" Margin="0,96,0,0" VerticalAlignment="Top" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+            <Button Content="Start" HorizontalAlignment="Center" Margin="0,260,0,0" VerticalAlignment="Top" Click="Button_Click"/>
 
         </Grid>
     </DockPanel>
