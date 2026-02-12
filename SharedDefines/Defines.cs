@@ -10,5 +10,6 @@
         public const string GAME_OVER_NEWGAME_PREFIX = GAME_OVER_PREFIX + "NEWGAME: ";
         public const string GAME_OVER_ENDGAME_PREFIX = GAME_OVER_PREFIX + "ENDGAME: ";
         public const int GUID_SIZE = 36; //GUIDs are 36 characters long.
+        public const int CLUE_SIZE = 30; //Clue is 30 characters long.
     }
 }

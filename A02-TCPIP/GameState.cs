@@ -23,7 +23,16 @@ namespace A02_TCPIP {
                 return gameID;
             }
         }
-        
+        public string GetClue {
+            get{
+                return FileIO.GetStringToGuess(currentGameFile);
+            }
+        }
+        public int GetWordsToGuess {
+            get{
+                return FileIO.GetAmountOfWords(currentGameFile);
+            }
+        }
         public int CurrentGuessNumber {
             get{
                 return currentGuessNumber;

@@ -46,11 +46,16 @@ namespace A02_TCPIP {
 
             switch (msg) {
                 case string s when s.StartsWith(Defines.ID_PREFIX): //initial contact.
+                    Console.WriteLine("entered thing");
+
                     GameState game = new GameState(dirPath);
+                    Console.WriteLine($"Found the files: {dirPath}{game.CurrentGameFile}");
 
                     Program.clients.Add(game.GameID, game);
+                    Console.WriteLine("Added the client to the dictionary!");
 
-                    response = Defines.ID_PREFIX + game.GameID.ToString();
+                    response = Defines.ID_PREFIX + game.GameID.ToString() + game.GetClue + game.GetWordsToGuess;
+                    Console.WriteLine($"Finished: {response}");
 
                     break;
                 case string s when s.StartsWith(Defines.GUESS_PREFIX): // guesses from client

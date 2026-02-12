@@ -46,7 +46,7 @@ namespace A02_TCPIP {
             int amount = -1;
 
             try {
-                string amountOfWords = File.ReadLines(path).FirstOrDefault();
+                string amountOfWords = File.ReadLines(path).Skip(1).FirstOrDefault();
                 int.TryParse(amountOfWords, out amount);
             } catch (Exception e) { 
                 Logger.LogMessage($"Error reading file: {e.Message}");

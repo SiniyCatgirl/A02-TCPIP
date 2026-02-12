@@ -20,7 +20,10 @@ using SharedDefines;
 namespace Client {
     internal class ClientRequestor {
         private Guid clientGameID = Guid.Empty;
-        private GameWindow gm = new GameWindow();
+        private GameWindow gm;
+        public ClientRequestor(GameWindow window) {
+           gm = window;
+        }
 
         //Should change this to instead of perma listening maybe have a param of what to send then send once and wait for response.
         //there is no need to be listening all the time when server only sends responses.
@@ -61,11 +64,21 @@ namespace Client {
                 int i = await stream.ReadAsync(serverBytes, 0, serverBytes.Length, ct);
                 string msg = Encoding.ASCII.GetString(serverBytes, 0, i);
 
+                gm.ShowDebugPopup(msg);
+
                 switch (msg) {
                     case string s when s.StartsWith(Defines.ID_PREFIX): //initial contact.
                         //parse id and store it for future sends.
                         string idString = s.Substring(Defines.ID_PREFIX.Length).Trim();
                         Guid.TryParse(idString, out clientGameID);
+                        int clueStartIndex = Defines.ID_PREFIX.Length + Defines.GUID_SIZE;
+
+                        string clue = s.Substring(clueStartIndex, Defines.CLUE_SIZE).Trim();
+                        string wordsLeftStr = s.Substring(clueStartIndex + Defines.CLUE_SIZE).Trim();
+
+                        int.TryParse(wordsLeftStr, out int wordsLeft);
+                        gm.UpdateUI(clue, wordsLeft);
+
                         break;
                     case string s when s.StartsWith(Defines.GUESS_PREFIX): // guesses from client
                         switch (s) {

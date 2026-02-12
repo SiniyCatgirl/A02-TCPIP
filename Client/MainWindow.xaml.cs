@@ -53,7 +53,7 @@ namespace Client {
         }
         
         private void btnSubmit_Click(object sender, RoutedEventArgs e) {
-
+            txtGuess.Text = "poop";
 
             return;
         }
@@ -65,7 +65,7 @@ namespace Client {
 
             if (cts == null) {
                 cts = new CancellationTokenSource();
-                ClientRequestor request = new ClientRequestor();
+                ClientRequestor request = new ClientRequestor(this);
 
                 try {
                     listenerTask = request.Listener(cts.Token);
@@ -100,19 +100,28 @@ namespace Client {
 
         internal void UpdateUI(string clue, int wordsLeft) {
             //If currently on UI thread/task, update controls.
-            if(System.Windows.Application.Current.Dispatcher.CheckAccess()) {
+            if (System.Windows.Application.Current.Dispatcher.CheckAccess())
+            {
                 txtStringClue.Text = clue;
+                //MessageBox.Show(clue + "\n" + txtStringClue.Text);
                 txtWordsLeft.Text = wordsLeft.ToString();
-            } else {
-                //If not on UI thread/task invoke update with dispatcher.
-                System.Windows.Application.Current.Dispatcher.BeginInvoke(
-                    DispatcherPriority.Background,
-                    new Action(() => { 
-                        txtStringClue.Text = clue;
-                        txtWordsLeft.Text = wordsLeft.ToString();
-                    }));
+                //MessageBox.Show(wordsLeft.ToString() + "\n" + txtWordsLeft.Text);
+                //MessageBox.Show("I'm the UI now");
             }
-            
+            else
+            {
+                //If not on UI thread / task invoke update with dispatcher.
+                System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+                {
+                    txtStringClue.Text = clue;
+                    //MessageBox.Show(clue + "\n" + txtStringClue.Text);
+                    txtWordsLeft.Text = wordsLeft.ToString();
+                    //MessageBox.Show(wordsLeft.ToString() + "\n" + txtWordsLeft.Text);
+                    //MessageBox.Show("Let's let the UI do it");
+                });
+            }
+            //MessageBox.Show("Psych!");
+
             return;
         }
 
@@ -183,5 +192,20 @@ namespace Client {
                 System.Windows.Application.Current.Shutdown();
             }
         }
+
+        internal void ShowDebugPopup(string msg){ 
+            //If currently on UI thread/task, update controls.
+            if(System.Windows.Application.Current.Dispatcher.CheckAccess()) {
+                MessageBox.Show(msg);
+            } else {
+                //If not on UI thread/task invoke update with dispatcher.
+                System.Windows.Application.Current.Dispatcher.BeginInvoke(
+                    DispatcherPriority.Background,
+                    new Action(() => { 
+                        MessageBox.Show(msg);
+                    }));
+            }
+        }
+
     }
 }
