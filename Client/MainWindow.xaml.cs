@@ -11,11 +11,20 @@ namespace Client {
     /// </summary>
     public partial class GameWindow : Window {
         private int wordsLeft;
+
         public GameWindow() {
             InitializeComponent();
             ResetUI();
             
             return;
+        }
+
+        public void CloseGame() {
+            Window game = (System.Windows.Application.Current.MainWindow as GameWindow);
+
+            if (game != null) {
+                game.Close();
+            }
         }
         
         private void File_Exit_Click(object sender, RoutedEventArgs e) {
