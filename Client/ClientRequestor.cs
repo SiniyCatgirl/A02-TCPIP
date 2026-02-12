@@ -21,6 +21,7 @@ namespace Client {
     internal class ClientRequestor {
         private Guid clientGameID = Guid.Empty;
         private GameWindow gm = new GameWindow();
+
         //Should change this to instead of perma listening maybe have a param of what to send then send once and wait for response.
         //there is no need to be listening all the time when server only sends responses.
 
@@ -40,7 +41,7 @@ namespace Client {
             string clientBufferSize = ConfigurationManager.AppSettings["BufferSize"];
             int.TryParse(clientBufferSize, out int maxBufferSize);
 
-            try {
+            try {       // somewhere in here we need to send the ID Prefix and ID FIRST before anything else happens
                 int port = 0;
                 int.TryParse(serverPortStr, out port);
                 IPAddress ipAddress = IPAddress.Parse(serverIP);
@@ -48,6 +49,11 @@ namespace Client {
 
                 NetworkStream stream = client.GetStream();
                 Byte[] serverBytes = new byte[maxBufferSize];
+
+
+                string clientID = Defines.ID_PREFIX + clientGameID.ToString();
+                Byte[] idStream = Encoding.ASCII.GetBytes(clientID);
+                stream.Write(serverBytes, 0, clientID.Length);
 
                 int i = await stream.ReadAsync(serverBytes, 0, serverBytes.Length, ct);
                 string msg = Encoding.ASCII.GetString(serverBytes, 0, i);

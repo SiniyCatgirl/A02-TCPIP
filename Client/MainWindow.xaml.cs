@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using TCP_Client;
@@ -11,6 +13,8 @@ namespace Client {
     /// </summary>
     public partial class GameWindow : Window {
         private int wordsLeft;
+        private CancellationTokenSource cts;
+        private Task listenerTask;
 
         public GameWindow() {
             InitializeComponent();
@@ -52,11 +56,36 @@ namespace Client {
 
             return;
         }
-        private void btnStart_Click(object sender, RoutedEventArgs e) {
 
+        private async void btnStart_Click(object sender, RoutedEventArgs e) {
+            // turn off button to prevent player from clicking it again
+            var button = sender as System.Windows.Controls.Button;
+            if (button != null) button.IsEnabled = false;
+
+            if (cts == null) {
+                cts = new CancellationTokenSource();
+                ClientRequestor request = new ClientRequestor();
+
+                try {
+                    listenerTask = request.Listener(cts.Token);
+
+                    await Task.Yield();
+                } catch (Exception ex) {
+                    // inform player of an error occurring
+                    MessageBox.Show($"Failed to start communication: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+
+                    // cancel and get rid of token because it is no longer valid and will make a new one for another attempt
+                    cts.Cancel();
+                    cts.Dispose();
+                    cts = null;
+
+                    if (button != null) button.IsEnabled = true;    // turn button back on
+                }
+            }
 
             return;
         }
+
         private void ResetUI() {
             txtStringClue.Text = string.Empty;
             txtTimer.Text = string.Empty;
@@ -85,6 +114,7 @@ namespace Client {
             
             return;
         }
+
         internal void UpdateTimer(string time) {
             //If currently on UI thread/task, update controls.
             if(System.Windows.Application.Current.Dispatcher.CheckAccess()) {

@@ -40,7 +40,8 @@ namespace A02_TCPIP {
 
             string response = string.Empty;
             Byte[] serverBytes = new byte[bufferSize];
-            
+
+            Console.WriteLine($"Received: {msg}");
             Logger.LogMessage($"Received {msg}");
 
             switch (msg) {
