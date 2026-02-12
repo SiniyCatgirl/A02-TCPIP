@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -163,6 +164,24 @@ namespace Client {
             }
 
             return;
+        }
+
+
+        protected override void OnClosing(CancelEventArgs e) {      // this function ensures that tasks have been properly terminated and not left running
+            
+            if (cts != null) {
+                cts.Cancel();
+                listenerTask.Wait(2000);
+                cts.Dispose();
+                listenerTask = null;
+                cts = null;
+            }
+
+            base.OnClosing(e);
+
+            if (System.Windows.Application.Current != null) {
+                System.Windows.Application.Current.Shutdown();
+            }
         }
     }
 }

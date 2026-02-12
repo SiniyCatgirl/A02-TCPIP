@@ -53,7 +53,7 @@ namespace Client {
 
                 string clientID = Defines.ID_PREFIX + clientGameID.ToString();
                 Byte[] idStream = Encoding.ASCII.GetBytes(clientID);
-                stream.Write(serverBytes, 0, clientID.Length);
+                stream.Write(idStream, 0, clientID.Length);
 
                 int i = await stream.ReadAsync(serverBytes, 0, serverBytes.Length, ct);
                 string msg = Encoding.ASCII.GetString(serverBytes, 0, i);
