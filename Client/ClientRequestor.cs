@@ -50,6 +50,9 @@ namespace Client {
                 NetworkStream stream = client.GetStream();
                 Byte[] serverBytes = new byte[maxBufferSize];
 
+                if (clientGameID == Guid.Empty) {
+                    clientGameID = Guid.NewGuid();
+                }
 
                 string clientID = Defines.ID_PREFIX + clientGameID.ToString();
                 Byte[] idStream = Encoding.ASCII.GetBytes(clientID);
