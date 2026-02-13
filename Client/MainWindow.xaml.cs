@@ -169,12 +169,12 @@ namespace Client {
             //If currently on UI thread/task, update controls.
             if(Application.Current.Dispatcher.CheckAccess()) {
                 lbCorrectWords.Items.Add(word);
-                wordsLeft--;
+                UpdateUI(txtStringClue.Text, --wordsLeft);
             } else {
                 //If not on UI thread/task invoke update with dispatcher.
                 Application.Current.Dispatcher.Invoke(() => { 
                     lbCorrectWords.Items.Add(word);
-                    wordsLeft--;
+                    UpdateUI(txtStringClue.Text, --wordsLeft);
                 });
             }
 
