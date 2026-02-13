@@ -1,6 +1,8 @@
 ﻿using SharedDefines;
 using System;
 using System.ComponentModel;
+using System.Configuration;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -14,7 +16,9 @@ namespace Client {
         private CancellationTokenSource cts = new CancellationTokenSource();
         private Guid clientGameID = Guid.Empty;
         private Task listenerTask;
-        private TimeMonitor stopwatch;
+        //private TimeMonitor stopwatch;
+        private Stopwatch timer;
+        private long timeRemaining;
         
         public Guid GameID {
             get{
@@ -25,8 +29,9 @@ namespace Client {
         public GameWindow() {
             InitializeComponent();
             ResetUI();
-            stopwatch = new TimeMonitor(this);
-            
+            //stopwatch = new TimeMonitor(this);
+            timer = new Stopwatch();
+
             return;
         }
 
@@ -80,12 +85,29 @@ namespace Client {
             try {
                 if (button != null) button.IsEnabled = false;
                 SendToServer(Defines.ID_PREFIX, string.Empty);
+                
             } catch (Exception ex) {
                 // inform player of an error occurring
                 MessageBox.Show($"Failed to start communication: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
             return;
+        }
+
+        internal async void StartCountdown() {
+            string parseTime = ConfigurationManager.AppSettings["GameTimeLimit"];
+            int.TryParse(parseTime, out int targetTime);
+            timer.Start();
+
+            while (timer.ElapsedMilliseconds < (targetTime * 1000)) {
+                await Task.Delay(1000);
+                if(timeRemaining != (timer.ElapsedMilliseconds - targetTime) / 1000) {
+                    timeRemaining = (timer.ElapsedMilliseconds / 1000);
+                    RunOnUIThread(() => {
+                        txtTimer.Text = timeRemaining.ToString();
+                    });
+                }
+            }
         }
 
         private void ToggleButton() {
@@ -120,7 +142,7 @@ namespace Client {
             txtWordsLeft.Text = string.Empty;
             lbCorrectWords.Items.Clear();
             lbIncorrectWords.Items.Clear();
-            if (clientGameID != Guid.Empty) stopwatch.ResetTimer();
+            //if (clientGameID != Guid.Empty) stopwatch.ResetTimer();
 
             return;
         }
@@ -140,7 +162,8 @@ namespace Client {
                 ToggleButton();
             });
 
-            //await stopwatch.MonitorTime(cts.Token);
+            // this absolutely crashes our program
+            //stopwatch.MonitorTime(cts.Token);
 
             return;
         }
