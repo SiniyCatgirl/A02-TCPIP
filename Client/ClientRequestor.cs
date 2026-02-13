@@ -6,6 +6,7 @@
 *   DESCRIPTION     :   
 */
 
+using SharedDefines;
 using System;
 using System.Configuration;
 using System.IO;
@@ -15,11 +16,10 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using SharedDefines;
+using System.Windows.Interop;
 
 namespace Client {
     internal class ClientRequestor {
-        private Guid clientGameID = Guid.Empty;
         private GameWindow gm;
         public ClientRequestor(GameWindow window) {
            gm = window;
@@ -38,13 +38,16 @@ namespace Client {
                                                     a task. This allows the method to return control
                                                     to its caller.
         */
-        internal async Task Listener(CancellationToken ct) {
+        internal async Task Listener(CancellationToken ct, string prefix, string sendMsg) {
             string serverIP = ConfigurationManager.AppSettings["ServerIP"];
             string serverPortStr = ConfigurationManager.AppSettings["ServerPort"];
             string clientBufferSize = ConfigurationManager.AppSettings["BufferSize"];
             int.TryParse(clientBufferSize, out int maxBufferSize);
+            string clientID = prefix + gm.GameID.ToString();
+            string word = string.Empty;
 
-            try {       // somewhere in here we need to send the ID Prefix and ID FIRST before anything else happens
+            try
+            {
                 int port = 0;
                 int.TryParse(serverPortStr, out port);
                 IPAddress ipAddress = IPAddress.Parse(serverIP);
@@ -53,26 +56,29 @@ namespace Client {
                 NetworkStream stream = client.GetStream();
                 Byte[] serverBytes = new byte[maxBufferSize];
 
-                if (clientGameID == Guid.Empty) {
-                    clientGameID = Guid.NewGuid();
-                }
+                switch (prefix) {
+                    case string s when s.StartsWith(Defines.ID_PREFIX) || s.StartsWith(Defines.GUESS_PREFIX):
+                        Byte[] idStream = Encoding.ASCII.GetBytes(clientID + sendMsg);
+                        stream.Write(idStream, 0, (clientID.Length + sendMsg.Length));
 
-                string clientID = Defines.ID_PREFIX + clientGameID.ToString();
-                Byte[] idStream = Encoding.ASCII.GetBytes(clientID);
-                stream.Write(idStream, 0, clientID.Length);
+                        break;
+                    case string s when s.StartsWith(Defines.GAME_OVER_PREFIX):
+
+
+                        break;
+                }
 
                 int i = await stream.ReadAsync(serverBytes, 0, serverBytes.Length, ct);
                 string msg = Encoding.ASCII.GetString(serverBytes, 0, i);
 
-                gm.ShowDebugPopup(msg);
-
                 switch (msg) {
-                    case string s when s.StartsWith(Defines.ID_PREFIX): //initial contact.
-                        //parse id and store it for future sends.
-                        string idString = s.Substring(Defines.ID_PREFIX.Length).Trim();
-                        Guid.TryParse(idString, out clientGameID);
-                        int clueStartIndex = Defines.ID_PREFIX.Length + Defines.GUID_SIZE;
+                    //parse id and store it for future sends.
+                    case string s when s.StartsWith(Defines.ID_PREFIX):
+                        string idString = s.Substring(Defines.ID_PREFIX.Length, Defines.GUID_SIZE).Trim();
+                        Guid.TryParse(idString, out Guid temp);
+                        gm.SetID(temp);
 
+                        int clueStartIndex = Defines.ID_PREFIX.Length + Defines.GUID_SIZE;
                         string clue = s.Substring(clueStartIndex, Defines.CLUE_SIZE).Trim();
                         string wordsLeftStr = s.Substring(clueStartIndex + Defines.CLUE_SIZE).Trim();
 
@@ -82,14 +88,20 @@ namespace Client {
                         break;
                     case string s when s.StartsWith(Defines.GUESS_PREFIX): // guesses from client
                         switch (s) {
-                            case Defines.GUESS_CORRECT_PREFIX:
-                                //add word to correct list and update ui.
+                            case string t when t.StartsWith(Defines.GUESS_CORRECT_PREFIX):
+                                word = s.Substring(Defines.GUESS_CORRECT_PREFIX.Length).Trim();
+                                gm.AddCorrectWord(word);
+
                                 break;
-                            case Defines.GUESS_INCORRECT_PREFIX:
-                                //add word to incorrect list and update ui.
+                            case string t when t.StartsWith(Defines.GUESS_INCORRECT_PREFIX):
+                                word = s.Substring(Defines.GUESS_INCORRECT_PREFIX.Length).Trim();
+                                gm.AddIncorrectWord(word);
+
                                 break;
-                            case Defines.GUESS_REPEAT_PREFIX:
-                                //popup dialog that says you already guessed this word.
+                            case string t when t.StartsWith(Defines.GUESS_REPEAT_PREFIX):
+                                word = s.Substring(Defines.GUESS_CORRECT_PREFIX.Length).Trim();
+                                gm.ShowPopup("Word already guessed: " + word);
+
                                 break;
                         }
 
@@ -102,20 +114,21 @@ namespace Client {
                                 break;
                             case Defines.GAME_OVER_ENDGAME_PREFIX:
                                 //close client and end game.
-                                if (clientGameID != Guid.Empty) {
-                                    string endMsg = Defines.GAME_OVER_ENDGAME_PREFIX + clientGameID.ToString();
+                                if (gm.GameID != Guid.Empty) {
+                                    string endMsg = Defines.GAME_OVER_ENDGAME_PREFIX + gm.GameID.ToString();
                                     byte[] endGame = Encoding.ASCII.GetBytes(endMsg);
                                     await stream.WriteAsync(endGame, 0, endGame.Length, ct);
                                 }
                                 gm.CloseGame();
+
                                 break;
                             case Defines.GAME_OVER_TIMEOUT_PREFIX:
-                                //popup dialog that asks if they wanna start new or end game. if new send new, if end close client.
+                                gm.PromptYesNo("TIMEOUT!", "You've run out of time! Start a new Game?");
+
                                 break;
                         }
 
                         break;
-                
                 }
 
                 stream.Close();

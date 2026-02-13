@@ -1,22 +1,26 @@
-﻿using System;
+﻿using SharedDefines;
+using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Threading;
 using TCP_Client;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Client {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class GameWindow : Window {
         private int wordsLeft;
         private CancellationTokenSource cts;
+        private Guid clientGameID = Guid.Empty;
         private Task listenerTask;
-
+        
+        public Guid GameID {
+            get{
+                return clientGameID;
+            }
+        }
+        
         public GameWindow() {
             InitializeComponent();
             ResetUI();
@@ -25,7 +29,7 @@ namespace Client {
         }
 
         public void CloseGame() {
-            Window game = (System.Windows.Application.Current.MainWindow as GameWindow);
+            Window game = (Application.Current.MainWindow as GameWindow);
 
             if (game != null) {
                 game.Close();
@@ -53,41 +57,51 @@ namespace Client {
         }
         
         private void btnSubmit_Click(object sender, RoutedEventArgs e) {
-            txtGuess.Text = "poop";
-
-            return;
-        }
-
-        private async void btnStart_Click(object sender, RoutedEventArgs e) {
-            // turn off button to prevent player from clicking it again
-            var button = sender as System.Windows.Controls.Button;
-            if (button != null) button.IsEnabled = false;
-
-            if (cts == null) {
-                cts = new CancellationTokenSource();
-                ClientRequestor request = new ClientRequestor(this);
-
-                try {
-                    listenerTask = request.Listener(cts.Token);
-
-                    await Task.Yield();
-                } catch (Exception ex) {
-                    // inform player of an error occurring
-                    MessageBox.Show($"Failed to start communication: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-
-                    // cancel and get rid of token because it is no longer valid and will make a new one for another attempt
-                    cts.Cancel();
-                    cts.Dispose();
-                    cts = null;
-
-                    if (button != null) button.IsEnabled = true;    // turn button back on
-                }
+            string guess = txtGuess.Text.Trim();
+            if (!string.IsNullOrEmpty(guess)) {
+                SendToServer(Defines.GUESS_PREFIX, guess);
+                txtGuess.Text = string.Empty;
             }
 
             return;
         }
 
+        private void btnStart_Click(object sender, RoutedEventArgs e) {
+            // turn off button to prevent player from clicking it again
+            Button button = sender as Button;
+            try {
+                if (button != null) button.IsEnabled = false;
+                if (clientGameID == Guid.Empty) clientGameID = Guid.NewGuid();
+                if (cts == null) cts = new CancellationTokenSource();
+
+                SendToServer(Defines.ID_PREFIX, string.Empty);
+            } catch (Exception ex) {
+                // inform player of an error occurring
+                MessageBox.Show($"Failed to start communication: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                if (button == null) button.IsEnabled = true;
+            }
+
+            return;
+        }
+
+        private async void SendToServer(string prefix, string msg) { 
+            ClientRequestor request = new ClientRequestor(this);
+
+            try {
+                listenerTask = request.Listener(cts.Token, prefix, msg);
+
+                await Task.Yield();
+            } catch (Exception ex) {
+                // cancel and get rid of token because it is no longer valid and will make a new one for another attempt
+                cts.Cancel();
+                cts.Dispose();
+                cts = null;
+            }
+
+            return;
+        }
         private void ResetUI() {
+            wordsLeft = -1;
             txtStringClue.Text = string.Empty;
             txtTimer.Text = string.Empty;
             txtGuess.Text = string.Empty;
@@ -100,19 +114,17 @@ namespace Client {
 
         internal void UpdateUI(string clue, int wordsLeft) {
             //If currently on UI thread/task, update controls.
-            if (System.Windows.Application.Current.Dispatcher.CheckAccess())
-            {
+            if (Application.Current.Dispatcher.CheckAccess()) {
+                if (this.wordsLeft == -1) this.wordsLeft = wordsLeft;
                 txtStringClue.Text = clue;
                 //MessageBox.Show(clue + "\n" + txtStringClue.Text);
                 txtWordsLeft.Text = wordsLeft.ToString();
                 //MessageBox.Show(wordsLeft.ToString() + "\n" + txtWordsLeft.Text);
                 //MessageBox.Show("I'm the UI now");
-            }
-            else
-            {
+            } else {
                 //If not on UI thread / task invoke update with dispatcher.
-                System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
-                {
+                Application.Current.Dispatcher.Invoke(() => {
+                    if (this.wordsLeft == -1) this.wordsLeft = wordsLeft;   
                     txtStringClue.Text = clue;
                     //MessageBox.Show(clue + "\n" + txtStringClue.Text);
                     txtWordsLeft.Text = wordsLeft.ToString();
@@ -124,18 +136,30 @@ namespace Client {
 
             return;
         }
+        internal void SetID(Guid id) {
+            //If currently on UI thread/task, update controls.
+            if (Application.Current.Dispatcher.CheckAccess()) {
+                clientGameID = id;
+            } else {
+                //If not on UI thread / task invoke update with dispatcher.
+                Application.Current.Dispatcher.Invoke(() => {
+                    clientGameID = id;
+                });
+            }
+            //MessageBox.Show("Psych!");
+
+            return;
+        }
 
         internal void UpdateTimer(string time) {
             //If currently on UI thread/task, update controls.
-            if(System.Windows.Application.Current.Dispatcher.CheckAccess()) {
+            if(Application.Current.Dispatcher.CheckAccess()) {
                 txtTimer.Text = time;
             } else {
                 //If not on UI thread/task invoke update with dispatcher.
-                System.Windows.Application.Current.Dispatcher.BeginInvoke(
-                    DispatcherPriority.Background,
-                    new Action(() => { 
-                        txtTimer.Text = time;
-                    }));
+                Application.Current.Dispatcher.Invoke(() => { 
+                    txtTimer.Text = time;
+                });
             }
 
             return;
@@ -143,17 +167,15 @@ namespace Client {
 
         internal void AddCorrectWord(string word) {
             //If currently on UI thread/task, update controls.
-            if(System.Windows.Application.Current.Dispatcher.CheckAccess()) {
+            if(Application.Current.Dispatcher.CheckAccess()) {
                 lbCorrectWords.Items.Add(word);
                 wordsLeft--;
             } else {
                 //If not on UI thread/task invoke update with dispatcher.
-                System.Windows.Application.Current.Dispatcher.BeginInvoke(
-                    DispatcherPriority.Background,
-                    new Action(() => { 
-                        lbCorrectWords.Items.Add(word);
-                        wordsLeft--;
-                    }));
+                Application.Current.Dispatcher.Invoke(() => { 
+                    lbCorrectWords.Items.Add(word);
+                    wordsLeft--;
+                });
             }
 
             return;
@@ -161,15 +183,13 @@ namespace Client {
 
         internal void AddIncorrectWord(string word) {
             //If currently on UI thread/task, update controls.
-            if(System.Windows.Application.Current.Dispatcher.CheckAccess()) {
+            if(Application.Current.Dispatcher.CheckAccess()) {
                 lbIncorrectWords.Items.Add(word);
             } else {
                 //If not on UI thread/task invoke update with dispatcher.
-                System.Windows.Application.Current.Dispatcher.BeginInvoke(
-                    DispatcherPriority.Background,
-                    new Action(() => { 
-                        lbIncorrectWords.Items.Add(word);
-                    }));
+                Application.Current.Dispatcher.Invoke(() => { 
+                    lbIncorrectWords.Items.Add(word);
+                });
             }
 
             return;
@@ -188,9 +208,32 @@ namespace Client {
 
             base.OnClosing(e);
 
-            if (System.Windows.Application.Current != null) {
-                System.Windows.Application.Current.Shutdown();
+            if (Application.Current != null) Application.Current.Shutdown();
+        }
+        internal void ShowPopup(string msg){ 
+            //If currently on UI thread/task, update controls.
+            if(Application.Current.Dispatcher.CheckAccess()) {
+                MessageBox.Show(msg);
+            } else {
+                //If not on UI thread/task invoke update with dispatcher.
+                Application.Current.Dispatcher.Invoke(() => { 
+                    MessageBox.Show(msg);
+                });
             }
+        }
+
+        internal bool PromptYesNo(string caption, string msg) {
+            bool result = false;
+            //If currently on UI thread/task, update controls.
+            if(Application.Current.Dispatcher.CheckAccess()) {
+                result = MessageBox.Show(msg, caption, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
+            } else {
+                //If not on UI thread/task invoke update with dispatcher.
+                Application.Current.Dispatcher.Invoke(() => { 
+                    result = MessageBox.Show(msg, caption, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
+                });
+            }
+            return result;
         }
 
         internal void ShowDebugPopup(string msg){ 
@@ -199,13 +242,12 @@ namespace Client {
                 MessageBox.Show(msg);
             } else {
                 //If not on UI thread/task invoke update with dispatcher.
-                System.Windows.Application.Current.Dispatcher.BeginInvoke(
-                    DispatcherPriority.Background,
-                    new Action(() => { 
+                Application.Current.Dispatcher.Invoke(() => { 
                         MessageBox.Show(msg);
-                    }));
+                    });
             }
         }
+
 
     }
 }

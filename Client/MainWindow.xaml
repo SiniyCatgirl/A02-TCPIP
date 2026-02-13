@@ -21,8 +21,8 @@
             </MenuItem>
         </Menu>
         <Grid>
-            <ListBox x:Name="lbCorrectWords" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="18,42,482,76" Width="150" HorizontalContentAlignment="Center" Height="300"/>
-            <ListBox x:Name="lbIncorrectWords" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="482,43,18,73" Height="300" Width="150" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+            <ListBox x:Name="lbCorrectWords" Margin="18,42,482,76" Width="150" HorizontalContentAlignment="Center" Height="300"/>
+            <ListBox x:Name="lbIncorrectWords" Margin="482,43,18,73" Height="300" Width="150" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
             <Label x:Name="labelCorrect" Content="Correct Words" HorizontalAlignment="Left" Margin="50,11,0,0" VerticalAlignment="Top" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
             <Label x:Name="labelIncorrect" Content="Incorrect Words" HorizontalAlignment="Left" Margin="510,11,0,0" VerticalAlignment="Top" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
             <TextBox x:Name="txtStringClue" HorizontalAlignment="Center" Margin="0,42,0,0" TextWrapping="Wrap" Text="String" VerticalAlignment="Top" Width="250" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Height="18" IsReadOnly="True"/>
@@ -30,7 +30,7 @@
             <Label x:Name="labelStringClue" Content="Clue" HorizontalAlignment="Center" Margin="0,11,0,0" VerticalAlignment="Top" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
             <Label x:Name="labelGuess" Content="Guess" HorizontalAlignment="Center" Margin="0,181,0,0" VerticalAlignment="Top" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
             <Label x:Name="labelWordsLeft" Content="Words Left" HorizontalAlignment="Center" Margin="0,293,0,0" VerticalAlignment="Top" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
-            <Button x:Name="btnSubmit" Content="Submit" HorizontalAlignment="Center" Margin="0,235,0,0" VerticalAlignment="Top" Click="btnSubmit_Click"/>
+            <Button x:Name="btnSubmit" Content="Submit" HorizontalAlignment="Center" Margin="0,235,0,0" VerticalAlignment="Top" Click="btnSubmit_Click" IsDefault="True"/>
             <TextBox x:Name="txtWordsLeft" HorizontalAlignment="Center" Margin="0,324,0,0" TextWrapping="Wrap" Text="# of Words Left" VerticalAlignment="Top" Width="120" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" IsReadOnly="True"/>
             <TextBox x:Name="txtTimer" HorizontalAlignment="Center" Margin="0,127,0,0" TextWrapping="Wrap" Text="Timer" VerticalAlignment="Top" Width="120" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" IsReadOnly="True"/>
             <Label x:Name="labelTimer" Content="Timer" HorizontalAlignment="Center" Margin="0,96,0,0" VerticalAlignment="Top" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>

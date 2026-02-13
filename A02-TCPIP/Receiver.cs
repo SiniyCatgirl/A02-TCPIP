@@ -46,21 +46,21 @@ namespace A02_TCPIP {
 
             switch (msg) {
                 case string s when s.StartsWith(Defines.ID_PREFIX): //initial contact.
-                    Console.WriteLine("entered thing");
+                    //Console.WriteLine("entered thing");
 
                     GameState game = new GameState(dirPath);
-                    Console.WriteLine($"Found the files: {dirPath}{game.CurrentGameFile}");
+                    //Console.WriteLine($"Found the files: {dirPath}{game.CurrentGameFile}");
 
                     Program.clients.Add(game.GameID, game);
-                    Console.WriteLine("Added the client to the dictionary!");
+                    //Console.WriteLine("Added the client to the dictionary!");
 
                     response = Defines.ID_PREFIX + game.GameID.ToString() + game.GetClue + game.GetWordsToGuess;
-                    Console.WriteLine($"Finished: {response}");
+                    //Console.WriteLine($"Finished: {response}");
 
                     break;
                 case string s when s.StartsWith(Defines.GUESS_PREFIX): // guesses from client
                     Guid clientGameID = Guid.Empty;
-                    Guid.TryParse(s.Substring(Defines.GUESS_PREFIX.Length, (Defines.GUESS_PREFIX.Length + Defines.GUID_SIZE)), out clientGameID);
+                    Guid.TryParse(s.Substring(Defines.GUESS_PREFIX.Length, Defines.GUID_SIZE), out clientGameID);
                     Program.clients.TryGetValue(clientGameID, out GameState clientGame);
 
                     string guess = msg.Substring(Defines.GUESS_PREFIX.Length + clientGameID.ToString().Length).Trim();
@@ -97,7 +97,8 @@ namespace A02_TCPIP {
 
                     break;
             }
-
+            
+            Console.WriteLine("Sent: " + response);
             serverBytes = Encoding.ASCII.GetBytes(response);
             stream.Write(serverBytes, 0, serverBytes.Length);
 
