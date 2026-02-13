@@ -16,9 +16,10 @@ namespace Client {
         private bool gameOver;
         private long timeRemaining;
         private Stopwatch timer;
-        private GameWindow gm = new GameWindow();
-        public TimeMonitor() {
-            ResetTimer();
+        private GameWindow gm;
+        public TimeMonitor(GameWindow gameWin) {
+            gm = gameWin;
+            //ResetTimer();
         }
 
         /*

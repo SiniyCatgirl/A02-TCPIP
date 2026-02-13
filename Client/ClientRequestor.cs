@@ -45,7 +45,6 @@ namespace Client {
             int.TryParse(clientBufferSize, out int maxBufferSize);
             string clientID = prefix + gm.GameID.ToString();
             string word = string.Empty;
-            TimeMonitor stopwatch = new TimeMonitor();
 
             try
             {

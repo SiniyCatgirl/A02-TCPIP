@@ -14,7 +14,7 @@ namespace Client {
         private CancellationTokenSource cts;
         private Guid clientGameID = Guid.Empty;
         private Task listenerTask;
-        private TimeMonitor stopwatch = new TimeMonitor();
+        private TimeMonitor stopwatch;
         
         public Guid GameID {
             get{
@@ -25,6 +25,7 @@ namespace Client {
         public GameWindow() {
             InitializeComponent();
             ResetUI();
+            stopwatch = new TimeMonitor(this);
             
             return;
         }
@@ -120,7 +121,7 @@ namespace Client {
             txtWordsLeft.Text = string.Empty;
             lbCorrectWords.Items.Clear();
             lbIncorrectWords.Items.Clear();
-            stopwatch.ResetTimer();
+            //stopwatch.ResetTimer();
 
             return;
         }
@@ -140,7 +141,7 @@ namespace Client {
                 ToggleButton();
             });
 
-            await stopwatch.MonitorTime(cts.Token);
+            //await stopwatch.MonitorTime(cts.Token);
 
             return;
         }
