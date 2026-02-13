@@ -49,6 +49,7 @@ namespace A02_TCPIP {
                     //Console.WriteLine("entered thing");
 
                     GameState game = new GameState(dirPath);
+                    Logger.LogMessage($"Opened {game.CurrentGameFile}");
                     //Console.WriteLine($"Found the files: {dirPath}{game.CurrentGameFile}");
 
                     Program.clients.Add(game.GameID, game);
