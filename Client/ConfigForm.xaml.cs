@@ -1,11 +1,10 @@
 ﻿/*
-* FILE: ConfigForm.xaml.cs
-* PROJECT: PROG2510 – A07 – Project
-* PROGRAMMER: Josh Visentin
-* FIRST VERSION: 2025-11-22
-* DESCRIPTION:
-* Implements configuration editor window for client application.
-* Loads current IP/Port settings & updates App.config when saved.
+* FILE:             ConfigForm.xaml.cs
+* PROJECT:          A02 - TCPIP
+* PROGRAMMER:       Josh Visentin, Jonathan Paventi, Trent Beitz
+* FIRST VERSION:    February 13, 2026
+* DESCRIPTION:      Implements configuration editor window for client application.
+*                   Loads current IP/Port settings & updates App.config when saved.
 */
 using System;
 using System.Configuration;

@@ -1,11 +1,10 @@
 ﻿/*
-* FILE: AboutWindow.xaml.cs
-* PROJECT: PROG2510 – A07 – Project
-* PROGRAMMER: Josh Visentin
-* FIRST VERSION: 2025-11-22
-* DESCRIPTION:
-* Code for About dialog window. Displays application info
-* & provides OK button for closing dialog.
+* FILE:             AboutWindow.xaml.cs
+* PROJECT:          A02 - TCPIP
+* PROGRAMMER:       Josh Visentin, Jonathan Paventi
+* FIRST VERSION:    February 13, 2026
+* DESCRIPTION:      Code for About dialog window. Displays application info
+*                   & provides OK button for closing dialog.
 */
 using System.Windows;
 

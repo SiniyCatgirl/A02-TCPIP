@@ -1,4 +1,12 @@
-﻿namespace SharedDefines {
+﻿/*
+*	FILE	        :   Defines.cs
+*	PROJECT         :   A02 - TCP/IP
+*   PROGRAMMER      :   Jonathan Paventi, Joshua Visentin, Trent Beitz
+*   FIRST VERSION   :   February 10, 20206
+*   DESCRIPTION     :   Lists the defines that are critical to Server and Client logic.
+*/
+
+namespace SharedDefines {
     public class Defines {
         public const string ID_PREFIX = "ID: ";
         public const string GUESS_PREFIX = "GUESS: ";

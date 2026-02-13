@@ -20,6 +20,8 @@
                        FontWeight="Bold" FontSize="13" Margin="0,0,0,5"/>
             <TextBlock Text="This project simulates a game that involves a Client and Server interaction."
                        TextWrapping="Wrap" FontSize="12" Margin="0,0,0,15"/>
+            <TextBlock Text="Instructions: Use the Config Menue in Edit to Customisetime time in Seconds as well as Server information if using a Custom one"
+                       TextWrapping="Wrap" FontSize="12" Margin="0,0,0,15"/>
 
             <Button Content="OK" Width="80" Height="30" HorizontalAlignment="Center"
                     Click="Ok_Click" Background="#0078D7" Foreground="White" FontWeight="Bold"/>

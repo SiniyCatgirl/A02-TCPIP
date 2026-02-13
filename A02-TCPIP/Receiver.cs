@@ -63,6 +63,7 @@ namespace A02_TCPIP {
                     Program.clients.TryGetValue(clientGameID, out GameState clientGame);
 
                     string guess = msg.Substring(Defines.GUESS_PREFIX.Length + clientGameID.ToString().Length).Trim();
+                    guess = guess.ToLower();
                     bool isRepeat = clientGame.Guesses.Contains(guess);
 
                     if (!isRepeat) clientGame.AddGuess(guess);

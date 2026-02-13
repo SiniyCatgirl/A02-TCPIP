@@ -1,13 +1,19 @@
-﻿using SharedDefines;
+﻿/*
+*	FILE	        :   MainWindow.xaml.cs
+*	PROJECT         :   A02 - TCP/IP
+*   PROGRAMMER      :   Jonathan Paventi, Joshua Visentin, Trent Beitz
+*   FIRST VERSION   :   February 10, 20206
+*   DESCRIPTION     :   This window contains the logic for the MainWindow. It maintains the UI Task in order to update independently.
+*/
+
+using SharedDefines;
 using System;
 using System.ComponentModel;
-using System.Configuration;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Threading;
 using TCP_Client;
 
 namespace Client {
@@ -16,9 +22,8 @@ namespace Client {
         private CancellationTokenSource cts = new CancellationTokenSource();
         private Guid clientGameID = Guid.Empty;
         private Task listenerTask;
-        private TimeMonitor stopwatch;
-        private Stopwatch timer;
-        //private long timeRemaining;
+        private TimeMonitor timeMonitor;
+        private Stopwatch sw;
         
         public Guid GameID {
             get{
@@ -29,18 +34,33 @@ namespace Client {
         public GameWindow() {
             InitializeComponent();
             ResetUI();
-            stopwatch = new TimeMonitor(this);
-            timer = new Stopwatch();
+            timeMonitor = new TimeMonitor(this);
+            sw = new Stopwatch();
 
             return;
         }
 
+        //Should change this to instead of perma listening maybe have a param of what to send then send once and wait for response.
+        //there is no need to be listening all the time when server only sends responses.
+
+        /*
+        Method        : 
+        Description   : 
+        Parameters    : 
+        Return Values : 
+        */
         internal void CancelToken() { 
             cts.Cancel();
             cts.Dispose();
             cts = null;
         }
 
+        /*
+        Method        : 
+        Description   : 
+        Parameters    : 
+        Return Values : 
+        */
         public void CloseGame() {
             Window game = (Application.Current.MainWindow as GameWindow);
 
@@ -48,13 +68,25 @@ namespace Client {
 
             return;
         }
-        
+
+        /*
+        Method        : 
+        Description   : 
+        Parameters    : 
+        Return Values : 
+        */
         private void File_Exit_Click(object sender, RoutedEventArgs e) {
             this.Close();
 
             return;
         }
 
+        /*
+        Method        : 
+        Description   : 
+        Parameters    : 
+        Return Values : 
+        */
         private void Edit_Config_Click(object sender, RoutedEventArgs e) {
             ConfigForm cfg = new ConfigForm();
             cfg.ShowDialog();
@@ -62,13 +94,25 @@ namespace Client {
             return;
         }
 
+        /*
+        Method        : 
+        Description   : 
+        Parameters    : 
+        Return Values : 
+        */
         private void Help_About_Click(object sender, RoutedEventArgs e) {
             AboutWindow about = new AboutWindow();
             about.ShowDialog();
 
             return;
         }
-        
+
+        /*
+        Method        : 
+        Description   : 
+        Parameters    : 
+        Return Values : 
+        */
         private void btnSubmit_Click(object sender, RoutedEventArgs e) {
             string guess = txtGuess.Text.Trim();
             if (!string.IsNullOrEmpty(guess)) {
@@ -79,6 +123,12 @@ namespace Client {
             return;
         }
 
+        /*
+        Method        : 
+        Description   : 
+        Parameters    : 
+        Return Values : 
+        */
         private void btnStart_Click(object sender, RoutedEventArgs e) {
             // turn off button to prevent player from clicking it again
             Button button = sender as Button;
@@ -94,30 +144,12 @@ namespace Client {
             return;
         }
 
-        //internal async void StartCountdown() {
-        //    string parseTime = ConfigurationManager.AppSettings["GameTimeLimit"];
-        //    int.TryParse(parseTime, out int targetTime);
-        //    txtTimer.Text = parseTime;
-        //    if (!timer.IsRunning) {
-        //        timer.Start();
-
-        //        while (timer.ElapsedMilliseconds < (targetTime * 1000)) {
-        //            await Task.Delay(250);
-        //            if (timeRemaining != (timer.ElapsedMilliseconds - targetTime) / 1000) {
-        //                timeRemaining = (targetTime - timer.ElapsedMilliseconds / 1000);
-        //                RunOnUIThread(() => {
-        //                    txtTimer.Text = timeRemaining.ToString();
-        //                });
-        //            }
-        //        }
-        //    } else {
-        //        timer.Stop();
-        //        timer.Reset();
-        //    }
-
-        //    return;
-        //}
-
+        /*
+        Method        : 
+        Description   : 
+        Parameters    : 
+        Return Values : 
+        */
         private void ToggleButton() {
             if (btnStart != null) {
                 btnStart.IsEnabled = false;
@@ -128,6 +160,12 @@ namespace Client {
             return;
         }
 
+        /*
+        Method        : 
+        Description   : 
+        Parameters    : 
+        Return Values : 
+        */
         internal async void SendToServer(string prefix, string msg) {
             ClientRequestor request = new ClientRequestor(this);
 
@@ -144,6 +182,12 @@ namespace Client {
             return;
         }
 
+        /*
+        Method        : 
+        Description   : 
+        Parameters    : 
+        Return Values : 
+        */
         internal void ResetUI() {
             wordsLeft = -1;
             txtStringClue.Text = string.Empty;
@@ -152,16 +196,20 @@ namespace Client {
             txtWordsLeft.Text = string.Empty;
             lbCorrectWords.Items.Clear();
             lbIncorrectWords.Items.Clear();
-            //timer.Reset();
-            //StartCountdown();
             if (clientGameID != Guid.Empty) {
-                stopwatch.ResetTimer();
-                stopwatch.MonitorTime(cts.Token, timer);
+                timeMonitor.ResetTimer();
+                timeMonitor.MonitorTime(cts.Token, sw);
             }
 
             return;
         }
 
+        /*
+        Method        : 
+        Description   : 
+        Parameters    : 
+        Return Values : 
+        */
         internal void UpdateUI(string clue, int wordsLeft) {
             RunOnUIThread(() => {
                 if (this.wordsLeft == -1) this.wordsLeft = wordsLeft;
@@ -171,21 +219,30 @@ namespace Client {
 
             return;
         }
+
+        /*
+        Method        : 
+        Description   : 
+        Parameters    : 
+        Return Values : 
+        */
         internal void SetID(Guid id) {
             RunOnUIThread(() => {
                 clientGameID = id;
                 ToggleButton();
-                stopwatch.MonitorTime(cts.Token, timer);
+                timeMonitor.MonitorTime(cts.Token, sw);
                 //StartCountdown();
             });
-
-            // this absolutely crashes our program
-            //stopwatch.MonitorTime(cts.Token);
 
             return;
         }
 
-
+        /*
+        Method        : 
+        Description   : 
+        Parameters    : 
+        Return Values : 
+        */
         internal void UpdateTimer(string time) {
             RunOnUIThread(() => {
                 txtTimer.Text = time;
@@ -193,6 +250,13 @@ namespace Client {
 
             return;
         }
+
+        /*
+        Method        : 
+        Description   : 
+        Parameters    : 
+        Return Values : 
+        */
         internal void RunOnUIThread(Action action) {
             //If currently on UI thread/task, update controls.
             if(Application.Current.Dispatcher.CheckAccess()) {
@@ -207,6 +271,12 @@ namespace Client {
             return;
         }
 
+        /*
+        Method        : 
+        Description   : 
+        Parameters    : 
+        Return Values : 
+        */
         internal void AddCorrectWord(string word) {
             RunOnUIThread(() => {
                 lbCorrectWords.Items.Add(word);
@@ -221,6 +291,12 @@ namespace Client {
             return;
         }
 
+        /*
+        Method        : 
+        Description   : 
+        Parameters    : 
+        Return Values : 
+        */
         internal void AddIncorrectWord(string word) {
             RunOnUIThread(() => {
                 lbIncorrectWords.Items.Add(word);
@@ -229,7 +305,12 @@ namespace Client {
             return;
         }
 
-
+        /*
+        Method        : 
+        Description   : 
+        Parameters    : 
+        Return Values : 
+        */
         protected override void OnClosing(CancelEventArgs e) {
             if (cts != null) {
                 cts.Cancel();

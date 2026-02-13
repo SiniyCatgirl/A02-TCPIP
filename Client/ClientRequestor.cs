@@ -2,21 +2,20 @@
 *	FILE	        :   ClientRequestor.cs
 *	PROJECT         :   A02 - TCP/IP
 *   PROGRAMMER      :   Jonathan Paventi, Joshua Visentin, Trent Beitz
-*   FIRST VERSION   :   February 10, 20206
-*   DESCRIPTION     :   
+*   FIRST VERSION   :   February 10, 2026
+*   DESCRIPTION     :   This file contains all the logic to run the client listener. It functions as a disconnected model.
+*                       It uses the shared defines which make up the communication protocol between the Server and Client
+*                       to determine the actions which it take. 
 */
 
 using SharedDefines;
 using System;
 using System.Configuration;
-using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Interop;
 
 namespace Client {
     internal class ClientRequestor {
@@ -30,7 +29,8 @@ namespace Client {
 
         /*
         Method        : Listener
-        Description   : 
+        Description   : The listener works as a disconnected model and uses the protocol to
+                        determine its requests and the responses.
         Parameters    : CancellationToken ct    :   The token required for the tasks to know
                                                     when and if the cancellation token has been
                                                     cancelled.
