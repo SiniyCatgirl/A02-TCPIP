@@ -241,7 +241,6 @@ namespace Client {
                 clientGameID = id;
                 ToggleButton();
                 timeMonitor.MonitorTime(cts.Token, sw);
-                //StartCountdown();
             });
 
             return;
