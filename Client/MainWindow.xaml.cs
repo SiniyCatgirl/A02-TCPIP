@@ -111,53 +111,26 @@ namespace Client {
         }
 
         internal void UpdateUI(string clue, int wordsLeft) {
-            //If currently on UI thread/task, update controls.
-            if (Application.Current.Dispatcher.CheckAccess()) {
+            RunOnUIThread(() => {
                 if (this.wordsLeft == -1) this.wordsLeft = wordsLeft;
                 txtStringClue.Text = clue;
-                //MessageBox.Show(clue + "\n" + txtStringClue.Text);
                 txtWordsLeft.Text = wordsLeft.ToString();
-                //MessageBox.Show(wordsLeft.ToString() + "\n" + txtWordsLeft.Text);
-                //MessageBox.Show("I'm the UI now");
-            } else {
-                //If not on UI thread / task invoke update with dispatcher.
-                Application.Current.Dispatcher.Invoke(() => {
-                    if (this.wordsLeft == -1) this.wordsLeft = wordsLeft;   
-                    txtStringClue.Text = clue;
-                    //MessageBox.Show(clue + "\n" + txtStringClue.Text);
-                    txtWordsLeft.Text = wordsLeft.ToString();
-                    //MessageBox.Show(wordsLeft.ToString() + "\n" + txtWordsLeft.Text);
-                    //MessageBox.Show("Let's let the UI do it");
-                });
-            }
-            //MessageBox.Show("Psych!");
+            });
 
             return;
         }
         internal void SetID(Guid id) {
-            //If currently on UI thread/task, update controls.
-            if (Application.Current.Dispatcher.CheckAccess()) {
+            RunOnUIThread(() => {
                 clientGameID = id;
-            } else {
-                //If not on UI thread / task invoke update with dispatcher.
-                Application.Current.Dispatcher.Invoke(() => {
-                    clientGameID = id;
-                });
-            }
+            });
 
             return;
         }
 
         internal void UpdateTimer(string time) {
-            //If currently on UI thread/task, update controls.
-            if(Application.Current.Dispatcher.CheckAccess()) {
+            RunOnUIThread(() => {
                 txtTimer.Text = time;
-            } else {
-                //If not on UI thread/task invoke update with dispatcher.
-                Application.Current.Dispatcher.Invoke(() => { 
-                    txtTimer.Text = time;
-                });
-            }
+            });
 
             return;
         }
@@ -185,22 +158,15 @@ namespace Client {
         }
 
         internal void AddIncorrectWord(string word) {
-            //If currently on UI thread/task, update controls.
-            if(Application.Current.Dispatcher.CheckAccess()) {
+            RunOnUIThread(() => {
                 lbIncorrectWords.Items.Add(word);
-            } else {
-                //If not on UI thread/task invoke update with dispatcher.
-                Application.Current.Dispatcher.Invoke(() => { 
-                    lbIncorrectWords.Items.Add(word);
-                });
-            }
+            });
 
             return;
         }
 
 
-        protected override void OnClosing(CancelEventArgs e) {      // this function ensures that tasks have been properly terminated and not left running
-            
+        protected override void OnClosing(CancelEventArgs e) {
             if (cts != null) {
                 cts.Cancel();
                 listenerTask.Wait(2000);
@@ -212,45 +178,33 @@ namespace Client {
             base.OnClosing(e);
 
             if (Application.Current != null) Application.Current.Shutdown();
+
+            return;
         }
         internal void ShowPopup(string msg){ 
-            //If currently on UI thread/task, update controls.
-            if(Application.Current.Dispatcher.CheckAccess()) {
+            RunOnUIThread(() => {
                 MessageBox.Show(msg);
-            } else {
-                //If not on UI thread/task invoke update with dispatcher.
-                Application.Current.Dispatcher.Invoke(() => { 
-                    MessageBox.Show(msg);
-                });
-            }
+            });
+
+            return;
         }
 
         internal bool PromptYesNo(string caption, string msg) {
             bool result = false;
-            //If currently on UI thread/task, update controls.
-            if(Application.Current.Dispatcher.CheckAccess()) {
+
+            RunOnUIThread(() => {
                 result = MessageBox.Show(msg, caption, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
-            } else {
-                //If not on UI thread/task invoke update with dispatcher.
-                Application.Current.Dispatcher.Invoke(() => { 
-                    result = MessageBox.Show(msg, caption, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
-                });
-            }
+            });
+
             return result;
         }
 
         internal void ShowDebugPopup(string msg){ 
-            //If currently on UI thread/task, update controls.
-            if(System.Windows.Application.Current.Dispatcher.CheckAccess()) {
-                MessageBox.Show(msg);
-            } else {
-                //If not on UI thread/task invoke update with dispatcher.
-                Application.Current.Dispatcher.Invoke(() => { 
-                        MessageBox.Show(msg);
-                    });
-            }
+            RunOnUIThread(() => {
+                MessageBox.Show(msg, "Debug", MessageBoxButton.OK, MessageBoxImage.Information);
+            });
+
+            return;
         }
-
-
     }
 }
