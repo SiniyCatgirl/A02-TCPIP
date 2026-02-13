@@ -32,6 +32,8 @@ namespace Client {
             Window game = (Application.Current.MainWindow as GameWindow);
 
             if (game != null) game.Close();
+
+            return;
         }
         
         private void File_Exit_Click(object sender, RoutedEventArgs e) {
@@ -81,22 +83,31 @@ namespace Client {
             return;
         }
 
-        private async void SendToServer(string prefix, string msg) { 
-            ClientRequestor request = new ClientRequestor(this);
-
-            try {
-                listenerTask = request.Listener(cts.Token, prefix, msg);
-
-                await Task.Yield();
-            } catch (Exception ex) {
-                // cancel and get rid of token because it is no longer valid and will make a new one for another attempt
-                cts.Cancel();
-                cts.Dispose();
-                cts = null;
+        private void ToggleButton(object sender, RoutedEvent e) {
+            Button button = sender as Button;
+            if (button != null) {
+                button.IsEnabled = false;
+            } else {
+                button.IsEnabled = true;
             }
-
-            return;
         }
+
+                private async void SendToServer(string prefix, string msg) {
+                    ClientRequestor request = new ClientRequestor(this);
+
+                    try {
+                        listenerTask = request.Listener(cts.Token, prefix, msg);
+
+                        await Task.Yield();
+                    } catch (Exception ex) {
+                        // cancel and get rid of token because it is no longer valid and will make a new one for another attempt
+                        cts.Cancel();
+                        cts.Dispose();
+                        cts = null;
+                    }
+
+                    return;
+                }
         private void ResetUI() {
             wordsLeft = -1;
             txtStringClue.Text = string.Empty;
@@ -180,6 +191,7 @@ namespace Client {
 
             return;
         }
+
         internal void ShowPopup(string msg){ 
             RunOnUIThread(() => {
                 MessageBox.Show(msg);
