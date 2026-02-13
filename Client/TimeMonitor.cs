@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Configuration;
 using System.Diagnostics;
+using SharedDefines;
 
 namespace Client {
     internal class TimeMonitor {
@@ -19,7 +20,7 @@ namespace Client {
         private GameWindow gm;
         public TimeMonitor(GameWindow gameWin) {
             gm = gameWin;
-            //ResetTimer();
+            ResetTimer();
         }
 
         /*
@@ -47,8 +48,7 @@ namespace Client {
                     }
                 }
 
-                //if time runs out, send gameover timeout.
-
+                gm.SendToServer(Defines.GAME_OVER_TIMEOUT_PREFIX, string.Empty);
             }
         }
 
@@ -61,7 +61,7 @@ namespace Client {
         internal void ResetTimer(){ 
             timeRemaining = long.Parse(ConfigurationManager.AppSettings["GameTimeLimit"]);
             gameOver = false;
-            timer.Restart();
+            if (timer != null) timer.Reset();
             gm.UpdateTimer(timeRemaining.ToString());
         }
 

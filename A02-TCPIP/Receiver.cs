@@ -25,18 +25,24 @@ namespace A02_TCPIP {
                                                     a task. This allows the method to return control
                                                     to its caller.
         */
-        internal async Task Worker(TcpClient client, CancellationToken ct){ 
+        internal async Task Worker(TcpClient client, CancellationToken ct){
             // read and parse buffer size from appconfig
+            Console.WriteLine($"I'm a little teapot");
             string buffer = ConfigurationManager.AppSettings["BufferSize"];
             int.TryParse(buffer, out int bufferSize);
+            Console.WriteLine($"I'm a frog");
 
             Byte[] clientBytes = new byte[bufferSize];
             NetworkStream stream = client.GetStream();
+            Console.WriteLine($"kill me");
 
-            int i = await stream.ReadAsync(clientBytes, 0, clientBytes.Length, ct);
+            int i = await stream.ReadAsync(clientBytes, 0, clientBytes.Length, ct);//current error line
+            Console.WriteLine($"kill me 2.0");
             string msg = Encoding.ASCII.GetString(clientBytes, 0, i);
-        
+            Console.WriteLine($"bitch");
+
             string dirPath = ConfigurationManager.AppSettings["FileList"];
+            Console.WriteLine($"kittens drown because of you");
 
             string response = string.Empty;
             Byte[] serverBytes = new byte[bufferSize];
@@ -46,17 +52,17 @@ namespace A02_TCPIP {
 
             switch (msg) {
                 case string s when s.StartsWith(Defines.ID_PREFIX): //initial contact.
-                    //Console.WriteLine("entered thing");
+                    Console.WriteLine("entered thing");
 
                     GameState game = new GameState(dirPath);
                     Logger.LogMessage($"Opened {game.CurrentGameFile}");
-                    //Console.WriteLine($"Found the files: {dirPath}{game.CurrentGameFile}");
+                    Console.WriteLine($"Found the files: {dirPath}{game.CurrentGameFile}");
 
                     Program.clients.Add(game.GameID, game);
-                    //Console.WriteLine("Added the client to the dictionary!");
+                    Console.WriteLine("Added the client to the dictionary!");
 
                     response = Defines.ID_PREFIX + game.GameID.ToString() + game.GetClue + game.GetWordsToGuess;
-                    //Console.WriteLine($"Finished: {response}");
+                    Console.WriteLine($"Finished: {response}");
 
                     break;
                 case string s when s.StartsWith(Defines.GUESS_PREFIX): // guesses from client

@@ -11,7 +11,7 @@ using TCP_Client;
 namespace Client {
     public partial class GameWindow : Window {
         private int wordsLeft;
-        private CancellationTokenSource cts;
+        private CancellationTokenSource cts = new CancellationTokenSource();
         private Guid clientGameID = Guid.Empty;
         private Task listenerTask;
         private TimeMonitor stopwatch;
@@ -29,9 +29,13 @@ namespace Client {
             
             return;
         }
+
         internal void CancelToken() { 
             cts.Cancel();
+            cts.Dispose();
+            cts = null;
         }
+
         public void CloseGame() {
             Window game = (Application.Current.MainWindow as GameWindow);
 
@@ -75,13 +79,10 @@ namespace Client {
             Button button = sender as Button;
             try {
                 if (button != null) button.IsEnabled = false;
-                //if (cts == null) cts = new CancellationTokenSource();
-
                 SendToServer(Defines.ID_PREFIX, string.Empty);
             } catch (Exception ex) {
                 // inform player of an error occurring
                 MessageBox.Show($"Failed to start communication: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                //if (button == null) button.IsEnabled = true;
             }
 
             return;
@@ -99,15 +100,13 @@ namespace Client {
             ClientRequestor request = new ClientRequestor(this);
 
             try {
-                listenerTask = request.Listener(cts.Token, prefix, msg);
+                request.Listener(cts.Token, prefix, msg);
 
                 await Task.Yield();
             } catch (Exception ex) {
                 // cancel and get rid of token because it is no longer valid and will make a new one for another attempt
-                cts.Cancel();
-                cts.Dispose();
-                cts = null;
                 MessageBox.Show($"Failed to start communication: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                CancelToken();
             }
 
             return;
@@ -121,7 +120,7 @@ namespace Client {
             txtWordsLeft.Text = string.Empty;
             lbCorrectWords.Items.Clear();
             lbIncorrectWords.Items.Clear();
-            //stopwatch.ResetTimer();
+            if (clientGameID != Guid.Empty) stopwatch.ResetTimer();
 
             return;
         }

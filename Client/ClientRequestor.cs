@@ -46,8 +46,7 @@ namespace Client {
             string clientID = prefix + gm.GameID.ToString();
             string word = string.Empty;
 
-            try
-            {
+            try {
                 int port = 0;
                 int.TryParse(serverPortStr, out port);
                 IPAddress ipAddress = IPAddress.Parse(serverIP);
@@ -55,20 +54,12 @@ namespace Client {
 
                 NetworkStream stream = client.GetStream();
                 Byte[] serverBytes = new byte[maxBufferSize];
+                
+                //This sends to server. we need this.
+                Byte[] idStream = Encoding.ASCII.GetBytes(clientID + sendMsg);
+                stream.Write(idStream, 0, (clientID.Length + sendMsg.Length));
 
-                switch (prefix) {
-                    case string s when s.StartsWith(Defines.ID_PREFIX) || s.StartsWith(Defines.GUESS_PREFIX):
-                        Byte[] idStream = Encoding.ASCII.GetBytes(clientID + sendMsg);
-                        stream.Write(idStream, 0, (clientID.Length + sendMsg.Length));
-
-                        break;
-                    case string s when s.StartsWith(Defines.GAME_OVER_PREFIX):
-
-
-                        break;
-                }
-
-                int i = await stream.ReadAsync(serverBytes, 0, serverBytes.Length, ct);
+                int i = await stream.ReadAsync(serverBytes, 0, serverBytes.Length, ct); // 
                 string msg = Encoding.ASCII.GetString(serverBytes, 0, i);
                 bool startNewGame = false;
 
