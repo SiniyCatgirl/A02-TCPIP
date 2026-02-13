@@ -106,6 +106,7 @@ namespace Client {
                 cts.Cancel();
                 cts.Dispose();
                 cts = null;
+                MessageBox.Show($"Failed to start communication: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
             return;
