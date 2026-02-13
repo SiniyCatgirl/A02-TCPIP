@@ -33,23 +33,35 @@ namespace Client {
                                                     a task. This allows the method to return control
                                                     to its caller.
         */
-        internal async Task MonitorTime(CancellationToken ct) {
-            timer = new Stopwatch();
-            timer.Start();
+        internal async Task MonitorTime(CancellationToken ct, Stopwatch timer) {
             string parseTime = ConfigurationManager.AppSettings["GameTimeLimit"];
             int.TryParse(parseTime, out int targetTime);
+            bool isRunning = true;
+            gm.RunOnUIThread(() => {
+                gm.txtTimer.Text = parseTime;
+            });
+            if (!timer.IsRunning) {
+                timer.Start();
 
-            while (!ct.IsCancellationRequested) {
-                while (timer.ElapsedMilliseconds < (targetTime * 1000)) {
-                    Thread.Sleep(100);
-                    if (timeRemaining != (timer.ElapsedMilliseconds - targetTime) / 1000) { 
-                        timeRemaining = (timer.ElapsedMilliseconds / 1000);
-                        gm.UpdateTimer(timeRemaining.ToString());
+                while (timer.ElapsedMilliseconds < (targetTime * 1000) && isRunning) {
+                    await Task.Delay(250);
+                    if (timeRemaining != (timer.ElapsedMilliseconds - targetTime) / 1000) {
+                        timeRemaining = (targetTime - timer.ElapsedMilliseconds / 1000);
+                        gm.RunOnUIThread(() => {
+                            gm.txtTimer.Text = timeRemaining.ToString();
+                        });
+                    }
+
+                    if ((timer.ElapsedMilliseconds / 1000) == targetTime) {
+                        gm.SendToServer(Defines.GAME_OVER_TIMEOUT_PREFIX, string.Empty);
+                        timer.Stop();
+                        timer.Reset();
+                        isRunning = false;
                     }
                 }
-
-                gm.SendToServer(Defines.GAME_OVER_TIMEOUT_PREFIX, string.Empty);
             }
+
+            return;
         }
 
         /*
@@ -63,16 +75,6 @@ namespace Client {
             gameOver = false;
             if (timer != null) timer.Reset();
             gm.UpdateTimer(timeRemaining.ToString());
-        }
-
-        /*
-        Method        : UpdateUI()
-        Description   : 
-        Parameters    : N/A
-        Return Values : N/A
-        */
-        private void UpdateUI() {
-            //update the ui with the time remaining.
         }
     }
 }

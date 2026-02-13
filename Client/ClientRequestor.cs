@@ -69,7 +69,7 @@ namespace Client {
                         string idString = s.Substring(Defines.ID_PREFIX.Length, Defines.GUID_SIZE).Trim();
                         Guid.TryParse(idString, out Guid temp);
                         gm.SetID(temp);
-                        gm.StartCountdown();
+                        //gm.StartCountdown();
 
                         int clueStartIndex = Defines.ID_PREFIX.Length + Defines.GUID_SIZE;
                         string clue = s.Substring(clueStartIndex, Defines.CLUE_SIZE).Trim();

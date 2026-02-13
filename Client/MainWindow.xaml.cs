@@ -16,9 +16,9 @@ namespace Client {
         private CancellationTokenSource cts = new CancellationTokenSource();
         private Guid clientGameID = Guid.Empty;
         private Task listenerTask;
-        //private TimeMonitor stopwatch;
+        private TimeMonitor stopwatch;
         private Stopwatch timer;
-        private long timeRemaining;
+        //private long timeRemaining;
         
         public Guid GameID {
             get{
@@ -29,7 +29,7 @@ namespace Client {
         public GameWindow() {
             InitializeComponent();
             ResetUI();
-            //stopwatch = new TimeMonitor(this);
+            stopwatch = new TimeMonitor(this);
             timer = new Stopwatch();
 
             return;
@@ -94,21 +94,29 @@ namespace Client {
             return;
         }
 
-        internal async void StartCountdown() {
-            string parseTime = ConfigurationManager.AppSettings["GameTimeLimit"];
-            int.TryParse(parseTime, out int targetTime);
-            timer.Start();
+        //internal async void StartCountdown() {
+        //    string parseTime = ConfigurationManager.AppSettings["GameTimeLimit"];
+        //    int.TryParse(parseTime, out int targetTime);
+        //    txtTimer.Text = parseTime;
+        //    if (!timer.IsRunning) {
+        //        timer.Start();
 
-            while (timer.ElapsedMilliseconds < (targetTime * 1000)) {
-                await Task.Delay(1000);
-                if(timeRemaining != (timer.ElapsedMilliseconds - targetTime) / 1000) {
-                    timeRemaining = (timer.ElapsedMilliseconds / 1000);
-                    RunOnUIThread(() => {
-                        txtTimer.Text = timeRemaining.ToString();
-                    });
-                }
-            }
-        }
+        //        while (timer.ElapsedMilliseconds < (targetTime * 1000)) {
+        //            await Task.Delay(250);
+        //            if (timeRemaining != (timer.ElapsedMilliseconds - targetTime) / 1000) {
+        //                timeRemaining = (targetTime - timer.ElapsedMilliseconds / 1000);
+        //                RunOnUIThread(() => {
+        //                    txtTimer.Text = timeRemaining.ToString();
+        //                });
+        //            }
+        //        }
+        //    } else {
+        //        timer.Stop();
+        //        timer.Reset();
+        //    }
+
+        //    return;
+        //}
 
         private void ToggleButton() {
             if (btnStart != null) {
@@ -116,6 +124,8 @@ namespace Client {
             } else {
                 btnStart.IsEnabled = true;
             }
+
+            return;
         }
 
         internal async void SendToServer(string prefix, string msg) {
@@ -142,7 +152,12 @@ namespace Client {
             txtWordsLeft.Text = string.Empty;
             lbCorrectWords.Items.Clear();
             lbIncorrectWords.Items.Clear();
-            //if (clientGameID != Guid.Empty) stopwatch.ResetTimer();
+            //timer.Reset();
+            //StartCountdown();
+            if (clientGameID != Guid.Empty) {
+                stopwatch.ResetTimer();
+                stopwatch.MonitorTime(cts.Token, timer);
+            }
 
             return;
         }
@@ -156,10 +171,12 @@ namespace Client {
 
             return;
         }
-        internal async void SetID(Guid id) {
+        internal void SetID(Guid id) {
             RunOnUIThread(() => {
                 clientGameID = id;
                 ToggleButton();
+                stopwatch.MonitorTime(cts.Token, timer);
+                //StartCountdown();
             });
 
             // this absolutely crashes our program
@@ -167,6 +184,7 @@ namespace Client {
 
             return;
         }
+
 
         internal void UpdateTimer(string time) {
             RunOnUIThread(() => {
