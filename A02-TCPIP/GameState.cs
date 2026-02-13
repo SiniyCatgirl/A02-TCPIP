@@ -65,8 +65,8 @@ namespace A02_TCPIP {
         // Constructor
         /*
         Constructor   : GameState
-        Description   : 
-        Parameters    : List<string> listOfFiles    :   
+        Description   : Initilizes a new instance of a Gamestate Object
+        Parameters    : string path    :   the path to the chosen string file
         Return Values : N/A
         */
         public GameState(string path) {
@@ -81,7 +81,7 @@ namespace A02_TCPIP {
 
         /*
         Method        : NewGame
-        Description   : 
+        Description   : resets the values for a new game
         Parameters    : N/A
         Return Values : N/A
         */
@@ -97,8 +97,8 @@ namespace A02_TCPIP {
 
         /*
         Method        : AddGuess
-        Description   : 
-        Parameters    : string guess    :   
+        Description   : takes the users inpu and add it to a list of the guesses
+        Parameters    : string guess    :   the sers inputed guess
         Return Values : N/A
         */
         internal void AddGuess(string guess) {
@@ -109,8 +109,8 @@ namespace A02_TCPIP {
 
         /*
         Method        : PickNewFile
-        Description   : 
-        Parameters    : string currentFile  :   
+        Description   : goes to the directory of the game files and selects a game file it has not already used
+        Parameters    : string currentFile  :   the game file tht was just played
         Return Values : N/A
         */
         private void PickNewFile(string currentFile){ 

@@ -13,7 +13,7 @@ namespace A02_TCPIP {
 
         /*
         Method        : LogMessage
-        Description   : 
+        Description   : writes any log messages to the log file
         Parameters    : string message     :   message to log.
         Return Values : N/A
         */
@@ -34,7 +34,7 @@ namespace A02_TCPIP {
 
         /*
         Method        : DisplayMessage
-        Description   : 
+        Description   : displayes any messages to the console window
         Parameters    : string msg      :   message to display to user
         Return Values : N/A
         */

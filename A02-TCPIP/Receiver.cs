@@ -15,8 +15,8 @@ namespace A02_TCPIP {
     internal class Receiver {
 
         /*
-        Method        : StartListener
-        Description   : 
+        Method        : Worker
+        Description   : this listens for the client to send it messages and direcs what to do wih them
         Parameters    : TcpClient client        :
                         CancellationToken ct    :   The token required for the tasks to know
                                                     when and if the cancellation token has been

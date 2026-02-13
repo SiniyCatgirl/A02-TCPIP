@@ -15,10 +15,8 @@ namespace A02_TCPIP {
 
         /*
         Method        : StartListener
-        Description   : 
-        Parameters    : CancellationToken ct    :   The token required for the tasks to know
-                                                    when and if the cancellation token has been
-                                                    cancelled.
+        Description   : this listens for the client to send it messages and direcs what to do wih them
+        Parameters    : CancellationToken ct    :   this is passed to gracefully shut down the listener for the server
         Return Values : Task                    :   As an Async method, it is required to return
                                                     a task. This allows the method to return control
                                                     to its caller.

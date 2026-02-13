@@ -3,7 +3,7 @@
 *	PROJECT         :   A02 - TCP/IP
 *   PROGRAMMER      :   Jonathan Paventi, Joshua Visentin, Trent Beitz
 *   FIRST VERSION   :   February 10, 20206
-*   DESCRIPTION     :   
+*   DESCRIPTION     :   Handels All FileIO
 */
 
 namespace A02_TCPIP {
@@ -11,7 +11,7 @@ namespace A02_TCPIP {
 
         /*
         Method        : GetListOfFiles
-        Description   : 
+        Description   : Retrevies the string files and puts them into a list
         Parameters    : string directory    :   
         Return Values : List<string>        : 
         */
@@ -21,8 +21,8 @@ namespace A02_TCPIP {
 
         /*
         Method        : GetStringToGuess
-        Description   : 
-        Parameters    : string path     :   
+        Description   : Pulls the sring of 30 characters from the file and returns the String
+        Parameters    : string path     :   where the file wth the string to guess from is located
         Return Values : string          :
         */
         internal static string GetStringToGuess(string path){ 
@@ -38,7 +38,7 @@ namespace A02_TCPIP {
 
         /*
         Method        : GetAmountOfWords
-        Description   : 
+        Description   : pulls the string from the second line of the txt file convers it to a int and sends it back
         Parameters    : string path     :   
         Return Values : int             :
         */
@@ -57,11 +57,10 @@ namespace A02_TCPIP {
 
         /*
         Method        : CheckWordList
-        Description   : 
-        Parameters    : string path     : 
-                        string word     : 
-                        GameState game  : 
-        Return Values : bool            :
+        Description   : takes the users guess and goes to the txt file and line by line compares the word to all the valid words isted on line 3+
+        Parameters    : string path     : the path to the txt file
+                        string word     : the users guess
+        Return Values : bool            : weather the work is on the valid words list
         */
         internal static bool CheckWordList(string path, string word){
             bool correctGuess = false;
