@@ -64,9 +64,12 @@ namespace A02_TCPIP {
                     Program.clients.TryGetValue(clientGameID, out GameState clientGame);
 
                     string guess = msg.Substring(Defines.GUESS_PREFIX.Length + clientGameID.ToString().Length).Trim();
+                    bool isRepeat = clientGame.Guesses.Contains(guess);
+
+                    if (!isRepeat) clientGame.AddGuess(guess);
 
                     string guessState = null;
-                    if (clientGame.Guesses.Contains(guess)){ 
+                    if (isRepeat){
                         guessState = Defines.GUESS_REPEAT_PREFIX;
                     } else if(FileIO.CheckWordList(clientGame.CurrentGameFile, guess)) {
                         guessState = Defines.GUESS_CORRECT_PREFIX;

@@ -31,9 +31,7 @@ namespace Client {
         public void CloseGame() {
             Window game = (Application.Current.MainWindow as GameWindow);
 
-            if (game != null) {
-                game.Close();
-            }
+            if (game != null) game.Close();
         }
         
         private void File_Exit_Click(object sender, RoutedEventArgs e) {
@@ -146,7 +144,6 @@ namespace Client {
                     clientGameID = id;
                 });
             }
-            //MessageBox.Show("Psych!");
 
             return;
         }
@@ -164,19 +161,25 @@ namespace Client {
 
             return;
         }
-
-        internal void AddCorrectWord(string word) {
+        internal void RunOnUIThread(Action action) {
             //If currently on UI thread/task, update controls.
             if(Application.Current.Dispatcher.CheckAccess()) {
-                lbCorrectWords.Items.Add(word);
-                UpdateUI(txtStringClue.Text, --wordsLeft);
+                action();
             } else {
                 //If not on UI thread/task invoke update with dispatcher.
                 Application.Current.Dispatcher.Invoke(() => { 
-                    lbCorrectWords.Items.Add(word);
-                    UpdateUI(txtStringClue.Text, --wordsLeft);
+                    action();
                 });
             }
+
+            return;
+        }
+
+        internal void AddCorrectWord(string word) {
+            RunOnUIThread(() => {
+                lbCorrectWords.Items.Add(word);
+                UpdateUI(txtStringClue.Text, --wordsLeft);
+            });
 
             return;
         }
