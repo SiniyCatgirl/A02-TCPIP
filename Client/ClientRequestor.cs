@@ -45,6 +45,7 @@ namespace Client {
             int.TryParse(clientBufferSize, out int maxBufferSize);
             string clientID = prefix + gm.GameID.ToString();
             string word = string.Empty;
+            TimeMonitor stopwatch = new TimeMonitor();
 
             try
             {
@@ -108,6 +109,29 @@ namespace Client {
                         break;
                     case string s when s.StartsWith(Defines.GAME_OVER_PREFIX): //Could be TIMEOUT, NEWGAME, ENDGAME. win or lose.
                         switch (s) {
+                            case string t when t.StartsWith(Defines.GAME_OVER_TIMEOUT_PREFIX):
+
+                                break;
+                            case string t when t.StartsWith(Defines.GAME_OVER_NEWGAME_PREFIX):
+                                string newGameData = s.Substring(Defines.GAME_OVER_NEWGAME_PREFIX.Length).Trim();
+
+                                string newClue = newGameData.Substring(0, Defines.CLUE_SIZE).Trim();
+                                string newWordsLeftStr = newGameData.Substring(newClue.Length).Trim();
+
+                                int.TryParse(newWordsLeftStr, out int newWordsLeft);
+                                gm.UpdateUI(newClue, newWordsLeft);
+
+                                break;
+                            case string t when t.StartsWith(Defines.GAME_OVER_ENDGAME_PREFIX):
+                                gm.CancelToken();
+
+                                break;
+                            case string t when t.StartsWith(Defines.GAME_OVER_WON_PREFIX):
+                            
+                                break;
+                        }
+
+                        switch (s) {
                             case Defines.GAME_OVER_NEWGAME_PREFIX:
                                 //reset ui and start new game.
                                 
@@ -134,6 +158,7 @@ namespace Client {
                 stream.Close();
 
             } catch (Exception ex) {
+                    gm.ShowDebugPopup(ex.Message);
                 
             }
 

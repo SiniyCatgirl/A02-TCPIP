@@ -14,6 +14,7 @@ namespace Client {
         private CancellationTokenSource cts;
         private Guid clientGameID = Guid.Empty;
         private Task listenerTask;
+        private TimeMonitor stopwatch = new TimeMonitor();
         
         public Guid GameID {
             get{
@@ -27,7 +28,9 @@ namespace Client {
             
             return;
         }
-
+        internal void CancelToken() { 
+            cts.Cancel();
+        }
         public void CloseGame() {
             Window game = (Application.Current.MainWindow as GameWindow);
 
@@ -71,43 +74,43 @@ namespace Client {
             Button button = sender as Button;
             try {
                 if (button != null) button.IsEnabled = false;
-                if (cts == null) cts = new CancellationTokenSource();
+                //if (cts == null) cts = new CancellationTokenSource();
 
                 SendToServer(Defines.ID_PREFIX, string.Empty);
             } catch (Exception ex) {
                 // inform player of an error occurring
                 MessageBox.Show($"Failed to start communication: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                if (button == null) button.IsEnabled = true;
+                //if (button == null) button.IsEnabled = true;
             }
 
             return;
         }
 
-        private void ToggleButton(object sender, RoutedEvent e) {
-            Button button = sender as Button;
-            if (button != null) {
-                button.IsEnabled = false;
+        private void ToggleButton() {
+            if (btnStart != null) {
+                btnStart.IsEnabled = false;
             } else {
-                button.IsEnabled = true;
+                btnStart.IsEnabled = true;
             }
         }
 
-                private async void SendToServer(string prefix, string msg) {
-                    ClientRequestor request = new ClientRequestor(this);
+        private async void SendToServer(string prefix, string msg) {
+            ClientRequestor request = new ClientRequestor(this);
 
-                    try {
-                        listenerTask = request.Listener(cts.Token, prefix, msg);
+            try {
+                listenerTask = request.Listener(cts.Token, prefix, msg);
 
-                        await Task.Yield();
-                    } catch (Exception ex) {
-                        // cancel and get rid of token because it is no longer valid and will make a new one for another attempt
-                        cts.Cancel();
-                        cts.Dispose();
-                        cts = null;
-                    }
+                await Task.Yield();
+            } catch (Exception ex) {
+                // cancel and get rid of token because it is no longer valid and will make a new one for another attempt
+                cts.Cancel();
+                cts.Dispose();
+                cts = null;
+            }
 
-                    return;
-                }
+            return;
+        }
+
         private void ResetUI() {
             wordsLeft = -1;
             txtStringClue.Text = string.Empty;
@@ -116,6 +119,7 @@ namespace Client {
             txtWordsLeft.Text = string.Empty;
             lbCorrectWords.Items.Clear();
             lbIncorrectWords.Items.Clear();
+            stopwatch.ResetTimer();
 
             return;
         }
@@ -129,10 +133,13 @@ namespace Client {
 
             return;
         }
-        internal void SetID(Guid id) {
+        internal async void SetID(Guid id) {
             RunOnUIThread(() => {
                 clientGameID = id;
+                ToggleButton();
             });
+
+            await stopwatch.MonitorTime(cts.Token);
 
             return;
         }
@@ -163,6 +170,10 @@ namespace Client {
                 lbCorrectWords.Items.Add(word);
                 UpdateUI(txtStringClue.Text, --wordsLeft);
             });
+
+            if (wordsLeft <= 0) {
+                SendToServer(Defines.GAME_OVER_WON_PREFIX, string.Empty);
+            }
 
             return;
         }

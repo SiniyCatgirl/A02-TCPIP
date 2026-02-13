@@ -82,20 +82,32 @@ namespace A02_TCPIP {
 
                     break;
                 case string s when s.StartsWith(Defines.GAME_OVER_PREFIX): //Could be TIMEOUT, NEWGAME, ENDGAME. win or lose.
-                    response = msg.Substring(0, Defines.GAME_OVER_PREFIX.Length).Trim();
+                    response = msg;
 
                     Guid gameIDToEnd = Guid.Empty;
                     Guid.TryParse(s.Substring(Defines.GAME_OVER_PREFIX.Length), out gameIDToEnd);
-                    Program.clients.TryGetValue(gameIDToEnd, out GameState gameToEnd);
+                    Program.clients.TryGetValue(gameIDToEnd, out GameState gameEnded);
 
-                    switch (response) {
-                        case Defines.GAME_OVER_NEWGAME_PREFIX:
-                            gameToEnd.NewGame();
+                    switch (s) {
+                        case string t when t.StartsWith(Defines.GAME_OVER_TIMEOUT_PREFIX):
+                            Logger.LogMessage($"Game ended due to TIMEOUT: {gameEnded.CurrentGameFile}, on Client ID: {gameIDToEnd}");
 
                             break;
-                        case Defines.GAME_OVER_ENDGAME_PREFIX:
+                        case string t when t.StartsWith(Defines.GAME_OVER_NEWGAME_PREFIX):
+                            Logger.LogMessage($"New game requested: {gameEnded.CurrentGameFile}, on Client ID: {gameIDToEnd}");
+                            gameEnded.NewGame();
+                            response = Defines.GAME_OVER_NEWGAME_PREFIX + gameEnded.GetClue + gameEnded.GetWordsToGuess;
+
+                            break;
+                        case string t when t.StartsWith(Defines.GAME_OVER_ENDGAME_PREFIX):
+                            Logger.LogMessage($"Game ended: {gameEnded.CurrentGameFile}, on Client ID: {gameIDToEnd}");
                             Program.clients.Remove(gameIDToEnd);
 
+                            break;
+                        case string t when t.StartsWith(Defines.GAME_OVER_WON_PREFIX):
+                            Logger.LogMessage($"Game won: {gameEnded.CurrentGameFile}, on Client ID: {gameIDToEnd}");
+                            Program.clients.Remove(gameIDToEnd);
+                            
                             break;
                     }
 
