@@ -5,7 +5,6 @@
 *   FIRST VERSION   :   February 10, 20206
 *   DESCRIPTION     :   This file contains all the logic to track the time limit of the game.
 */
-
 using System.Threading;
 using System.Threading.Tasks;
 using System.Configuration;
@@ -14,7 +13,6 @@ using SharedDefines;
 
 namespace Client {
     internal class TimeMonitor {
-        private bool gameOver;
         private long timeRemaining;
         private Stopwatch timer;
         private GameWindow gm;
@@ -41,9 +39,7 @@ namespace Client {
             int.TryParse(parseTime, out int targetTime);
 
             bool isRunning = true;
-            gm.RunOnUIThread(() => {        // add the time to the UI
-                gm.txtTimer.Text = parseTime;
-            });
+            gm.UpdateTimer(parseTime);
 
             if (!timer.IsRunning) {
                 timer.Start();
@@ -53,9 +49,7 @@ namespace Client {
                     await Task.Delay(250);
                     if (timeRemaining != (timer.ElapsedMilliseconds - targetTime) / 1000) {
                         timeRemaining = (targetTime - timer.ElapsedMilliseconds / 1000);    // back into seconds for UI
-                        gm.RunOnUIThread(() => {
-                            gm.txtTimer.Text = timeRemaining.ToString();
-                        });
+                        gm.UpdateTimer(timeRemaining.ToString());
                     }
 
                     // if the timer reaches 0 before the game is finished
@@ -79,7 +73,6 @@ namespace Client {
         */
         internal void ResetTimer(){ 
             timeRemaining = long.Parse(ConfigurationManager.AppSettings["GameTimeLimit"]);
-            gameOver = false;
             if (timer != null) timer.Reset();
             gm.UpdateTimer(timeRemaining.ToString());
         }
