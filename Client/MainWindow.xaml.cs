@@ -173,6 +173,7 @@ namespace Client {
             });
 
             if (wordsLeft <= 0) {
+                ShowPopup("you win");
                 SendToServer(Defines.GAME_OVER_WON_PREFIX, string.Empty);
             }
 

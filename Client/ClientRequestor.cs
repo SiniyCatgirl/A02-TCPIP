@@ -91,7 +91,7 @@ namespace Client {
 
                                 break;
                             case string t when t.StartsWith(Defines.GUESS_REPEAT_PREFIX):
-                                word = s.Substring(Defines.GUESS_CORRECT_PREFIX.Length).Trim();
+                                word = s.Substring(Defines.GUESS_REPEAT_PREFIX.Length).Trim();
                                 gm.ShowPopup("Word already guessed: " + word);
 
                                 break;

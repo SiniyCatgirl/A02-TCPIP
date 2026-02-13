@@ -27,22 +27,16 @@ namespace A02_TCPIP {
         */
         internal async Task Worker(TcpClient client, CancellationToken ct){
             // read and parse buffer size from appconfig
-            Console.WriteLine($"I'm a little teapot");
             string buffer = ConfigurationManager.AppSettings["BufferSize"];
             int.TryParse(buffer, out int bufferSize);
-            Console.WriteLine($"I'm a frog");
 
             Byte[] clientBytes = new byte[bufferSize];
             NetworkStream stream = client.GetStream();
-            Console.WriteLine($"kill me");
 
-            int i = await stream.ReadAsync(clientBytes, 0, clientBytes.Length, ct);//current error line
-            Console.WriteLine($"kill me 2.0");
+            int i = await stream.ReadAsync(clientBytes, 0, clientBytes.Length, ct);
             string msg = Encoding.ASCII.GetString(clientBytes, 0, i);
-            Console.WriteLine($"bitch");
 
             string dirPath = ConfigurationManager.AppSettings["FileList"];
-            Console.WriteLine($"kittens drown because of you");
 
             string response = string.Empty;
             Byte[] serverBytes = new byte[bufferSize];
@@ -52,8 +46,6 @@ namespace A02_TCPIP {
 
             switch (msg) {
                 case string s when s.StartsWith(Defines.ID_PREFIX): //initial contact.
-                    Console.WriteLine("entered thing");
-
                     GameState game = new GameState(dirPath);
                     Logger.LogMessage($"Opened {game.CurrentGameFile}");
                     Console.WriteLine($"Found the files: {dirPath}{game.CurrentGameFile}");
@@ -91,28 +83,34 @@ namespace A02_TCPIP {
                     response = msg;
 
                     Guid gameIDToEnd = Guid.Empty;
-                    Guid.TryParse(s.Substring(Defines.GAME_OVER_PREFIX.Length), out gameIDToEnd);
-                    Program.clients.TryGetValue(gameIDToEnd, out GameState gameEnded);
+                    GameState gameEnded = null;
 
-                    switch (s) {
+                    switch (msg) {
                         case string t when t.StartsWith(Defines.GAME_OVER_TIMEOUT_PREFIX):
+                            Guid.TryParse(s.Substring(Defines.GAME_OVER_TIMEOUT_PREFIX.Length), out gameIDToEnd);
+                            Program.clients.TryGetValue(gameIDToEnd, out gameEnded);
                             Logger.LogMessage($"Game ended due to TIMEOUT: {gameEnded.CurrentGameFile}, on Client ID: {gameIDToEnd}");
 
                             break;
                         case string t when t.StartsWith(Defines.GAME_OVER_NEWGAME_PREFIX):
+                            Guid.TryParse(s.Substring(Defines.GAME_OVER_NEWGAME_PREFIX.Length), out gameIDToEnd);
+                            Program.clients.TryGetValue(gameIDToEnd, out gameEnded);
                             Logger.LogMessage($"New game requested: {gameEnded.CurrentGameFile}, on Client ID: {gameIDToEnd}");
                             gameEnded.NewGame();
                             response = Defines.GAME_OVER_NEWGAME_PREFIX + gameEnded.GetClue + gameEnded.GetWordsToGuess;
 
                             break;
                         case string t when t.StartsWith(Defines.GAME_OVER_ENDGAME_PREFIX):
+                            Guid.TryParse(s.Substring(Defines.GAME_OVER_ENDGAME_PREFIX.Length), out gameIDToEnd);
+                            Program.clients.TryGetValue(gameIDToEnd, out gameEnded);
                             Logger.LogMessage($"Game ended: {gameEnded.CurrentGameFile}, on Client ID: {gameIDToEnd}");
                             Program.clients.Remove(gameIDToEnd);
 
                             break;
                         case string t when t.StartsWith(Defines.GAME_OVER_WON_PREFIX):
+                            Guid.TryParse(s.Substring(Defines.GAME_OVER_WON_PREFIX.Length), out gameIDToEnd);
+                            Program.clients.TryGetValue(gameIDToEnd, out gameEnded);
                             Logger.LogMessage($"Game won: {gameEnded.CurrentGameFile}, on Client ID: {gameIDToEnd}");
-                            Program.clients.Remove(gameIDToEnd);
                             
                             break;
                     }
