@@ -94,7 +94,7 @@ namespace Client {
             }
         }
 
-        private async void SendToServer(string prefix, string msg) {
+        internal async void SendToServer(string prefix, string msg) {
             ClientRequestor request = new ClientRequestor(this);
 
             try {
@@ -111,7 +111,7 @@ namespace Client {
             return;
         }
 
-        private void ResetUI() {
+        internal void ResetUI() {
             wordsLeft = -1;
             txtStringClue.Text = string.Empty;
             txtTimer.Text = string.Empty;

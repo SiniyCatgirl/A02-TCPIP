@@ -71,6 +71,7 @@ namespace Client {
 
                 int i = await stream.ReadAsync(serverBytes, 0, serverBytes.Length, ct);
                 string msg = Encoding.ASCII.GetString(serverBytes, 0, i);
+                bool startNewGame = false;
 
                 switch (msg) {
                     //parse id and store it for future sends.
@@ -110,9 +111,18 @@ namespace Client {
                     case string s when s.StartsWith(Defines.GAME_OVER_PREFIX): //Could be TIMEOUT, NEWGAME, ENDGAME. win or lose.
                         switch (s) {
                             case string t when t.StartsWith(Defines.GAME_OVER_TIMEOUT_PREFIX):
+                                startNewGame = gm.PromptYesNo("Out of Time.", "Do you want to start a new game? if no game will close.");
 
-                                break;
+                                if (startNewGame){
+                                    gm.SendToServer(Defines.GAME_OVER_NEWGAME_PREFIX, string.Empty);
+                                } else { 
+                                    gm.SendToServer(Defines.GAME_OVER_ENDGAME_PREFIX, string.Empty);
+                                }
+
+                                    break;
                             case string t when t.StartsWith(Defines.GAME_OVER_NEWGAME_PREFIX):
+                                gm.ResetUI();
+
                                 string newGameData = s.Substring(Defines.GAME_OVER_NEWGAME_PREFIX.Length).Trim();
 
                                 string newClue = newGameData.Substring(0, Defines.CLUE_SIZE).Trim();
@@ -127,7 +137,13 @@ namespace Client {
 
                                 break;
                             case string t when t.StartsWith(Defines.GAME_OVER_WON_PREFIX):
-                            
+                                startNewGame = gm.PromptYesNo("You Won.", "Do you want to start a new game? if no game will close.");
+
+                                if (startNewGame) {
+                                    gm.SendToServer(Defines.GAME_OVER_NEWGAME_PREFIX, string.Empty);
+                                } else {
+                                    gm.SendToServer(Defines.GAME_OVER_ENDGAME_PREFIX, string.Empty);
+                                }
                                 break;
                         }
 
