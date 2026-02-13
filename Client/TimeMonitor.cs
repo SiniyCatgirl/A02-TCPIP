@@ -3,9 +3,8 @@
 *	PROJECT         :   A02 - TCP/IP
 *   PROGRAMMER      :   Jonathan Paventi, Joshua Visentin, Trent Beitz
 *   FIRST VERSION   :   February 10, 20206
-*   DESCRIPTION     :   
+*   DESCRIPTION     :   This file contains all the logic to track the time limit of the game.
 */
-
 using System.Threading;
 using System.Threading.Tasks;
 using System.Configuration;
@@ -14,10 +13,11 @@ using SharedDefines;
 
 namespace Client {
     internal class TimeMonitor {
-        private bool gameOver;
         private long timeRemaining;
         private Stopwatch timer;
         private GameWindow gm;
+
+        // Constructor
         public TimeMonitor(GameWindow gameWin) {
             gm = gameWin;
             ResetTimer();
@@ -34,24 +34,25 @@ namespace Client {
                                                     to its caller.
         */
         internal async Task MonitorTime(CancellationToken ct, Stopwatch timer) {
+            // Get and parse time limit from AppConfig
             string parseTime = ConfigurationManager.AppSettings["GameTimeLimit"];
             int.TryParse(parseTime, out int targetTime);
+
             bool isRunning = true;
-            gm.RunOnUIThread(() => {
-                gm.txtTimer.Text = parseTime;
-            });
+            gm.UpdateTimer(parseTime);
+
             if (!timer.IsRunning) {
                 timer.Start();
 
-                while (timer.ElapsedMilliseconds < (targetTime * 1000) && isRunning) {
+                // while timer has not reached the time limit in the AppConfig
+                while (timer.ElapsedMilliseconds < (targetTime * 1000) && isRunning) {      // converting targetTime to milliseconds
                     await Task.Delay(250);
                     if (timeRemaining != (timer.ElapsedMilliseconds - targetTime) / 1000) {
-                        timeRemaining = (targetTime - timer.ElapsedMilliseconds / 1000);
-                        gm.RunOnUIThread(() => {
-                            gm.txtTimer.Text = timeRemaining.ToString();
-                        });
+                        timeRemaining = (targetTime - timer.ElapsedMilliseconds / 1000);    // back into seconds for UI
+                        gm.UpdateTimer(timeRemaining.ToString());
                     }
 
+                    // if the timer reaches 0 before the game is finished
                     if ((timer.ElapsedMilliseconds / 1000) == targetTime) {
                         gm.SendToServer(Defines.GAME_OVER_TIMEOUT_PREFIX, string.Empty);
                         timer.Stop();
@@ -66,13 +67,12 @@ namespace Client {
 
         /*
         Method        : ResetTime()
-        Description   : 
+        Description   : Resets the time used by the game
         Parameters    : N/A
         Return Values : N/A
         */
         internal void ResetTimer(){ 
             timeRemaining = long.Parse(ConfigurationManager.AppSettings["GameTimeLimit"]);
-            gameOver = false;
             if (timer != null) timer.Reset();
             gm.UpdateTimer(timeRemaining.ToString());
         }
