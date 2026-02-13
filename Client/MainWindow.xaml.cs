@@ -69,7 +69,6 @@ namespace Client {
             Button button = sender as Button;
             try {
                 if (button != null) button.IsEnabled = false;
-                if (clientGameID == Guid.Empty) clientGameID = Guid.NewGuid();
                 if (cts == null) cts = new CancellationTokenSource();
 
                 SendToServer(Defines.ID_PREFIX, string.Empty);
