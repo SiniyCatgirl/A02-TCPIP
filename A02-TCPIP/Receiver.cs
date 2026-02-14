@@ -4,7 +4,7 @@
 *   PROGRAMMER      :   Jonathan Paventi, Joshua Visentin, Trent Beitz
 *   FIRST VERSION   :   February 10, 20206
 *   DESCRIPTION     :   Handles incoming client message over TCP, interprets protocol commands based on custom defines,
-*                   :   manages game satate and responds to client with appropriate information based on the message received.
+*                   :   manages game state and responds to client with appropriate information based on the message received.
 */
 
 using System.Configuration;
