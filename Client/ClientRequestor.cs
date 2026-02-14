@@ -115,9 +115,9 @@ namespace Client {
                                 startNewGame = gm.PromptYesNo("Out of Time.", "Do you want to start a new game? if no game will close.");
 
                                 //Send new game or end game message to server based on user response.
-                                if(startNewGame){
+                                if (startNewGame) {
                                     gm.SendToServer(Defines.GAME_OVER_NEWGAME_PREFIX, string.Empty);
-                                } else { 
+                                } else {
                                     gm.SendToServer(Defines.GAME_OVER_ENDGAME_PREFIX, string.Empty);
                                 }
 
@@ -164,8 +164,11 @@ namespace Client {
 
                 //Close stream and client connection.
                 stream.Close();
+            } catch (SocketException se) {
+                gm.ShowDebugPopup($"Server Not Running.\n Try Again Later.");
+                gm.ToggleButton(true);
             } catch (Exception ex) {
-                gm.ShowDebugPopup(ex.Message);
+                gm.ShowDebugPopup($"Error: {ex.Message}");
             }
 
             return;

@@ -10,6 +10,7 @@ using SharedDefines;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -20,6 +21,7 @@ namespace Client {
     public partial class GameWindow : Window {
         private int wordsLeft;
         private CancellationTokenSource cts = new CancellationTokenSource();
+        internal CancellationTokenSource isRunning = new CancellationTokenSource();
         private Guid clientGameID = Guid.Empty;
         private Task listenerTask;
         private TimeMonitor timeMonitor;
@@ -48,7 +50,10 @@ namespace Client {
         Parameters    : N/A
         Return Values : N/A
         */
-        internal void CancelToken() { 
+        internal void CancelToken() {
+            isRunning.Cancel();
+            isRunning.Dispose();
+            isRunning = null;
             cts.Cancel();
             cts.Dispose();
             cts = null;
@@ -136,11 +141,10 @@ namespace Client {
         */
         private void btnStart_Click(object sender, RoutedEventArgs e) {
             // turn off button to prevent player from clicking it again
-            Button button = sender as Button;
             try {
-                if (button != null) button.IsEnabled = false;
+                ToggleButton(false);
                 SendToServer(Defines.ID_PREFIX, string.Empty);
-                
+
             } catch (Exception ex) {
                 // inform player of an error occurring
                 MessageBox.Show($"Failed to start communication: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -155,12 +159,10 @@ namespace Client {
         Parameters    : N/A
         Return Values : N/A
         */
-        private void ToggleButton() {
-            if (btnStart != null) {
-                btnStart.IsEnabled = false;
-            } else {
-                btnStart.IsEnabled = true;
-            }
+        internal void ToggleButton(bool state) {
+            RunOnUIThread(() => {
+                if (btnStart != null) btnStart.IsEnabled = state;
+            });
 
             return;
         }
@@ -205,8 +207,10 @@ namespace Client {
             lbCorrectWords.Items.Clear();
             lbIncorrectWords.Items.Clear();
             if (clientGameID != Guid.Empty) {
-                timeMonitor.ResetTimer();
-                timeMonitor.MonitorTime(cts.Token, sw);
+                isRunning.Cancel();
+                isRunning = new CancellationTokenSource();
+                timeMonitor = new TimeMonitor(this);
+                timeMonitor.MonitorTime(cts.Token, isRunning.Token, sw);
             }
 
             return;
@@ -239,8 +243,8 @@ namespace Client {
         internal void SetID(Guid id) {
             RunOnUIThread(() => {
                 clientGameID = id;
-                ToggleButton();
-                timeMonitor.MonitorTime(cts.Token, sw);
+                ToggleButton(false);
+                timeMonitor.MonitorTime(cts.Token, isRunning.Token, sw);
             });
 
             return;
@@ -253,9 +257,11 @@ namespace Client {
         Return Values : N/A
         */
         internal void UpdateTimer(string time) {
-            RunOnUIThread(() => {
-                txtTimer.Text = time;
-            });
+            if (clientGameID != Guid.Empty) {
+                RunOnUIThread(() => {
+                    txtTimer.Text = time;
+                });
+            }
 
             return;
         }
@@ -267,7 +273,7 @@ namespace Client {
         Parameters    : Action action       :   The action used in the lambda call
         Return Values : N/A
         */
-        internal void RunOnUIThread(Action action) {
+        private void RunOnUIThread(Action action) {
             //If currently on UI thread/task, update controls.
             if(Application.Current.Dispatcher.CheckAccess()) {
                 action();

@@ -123,6 +123,7 @@ namespace A02_TCPIP {
                             Logger.LogMessage($"New game requested: {gameEnded.CurrentGameFile}, on Client ID: {gameIDToEnd}");
                             gameEnded.NewGame();    // erases current game statistics (not ID or games played)
                             response = Defines.GAME_OVER_NEWGAME_PREFIX + gameEnded.GetClue + gameEnded.GetWordsToGuess;
+                            Logger.LogMessage($"Opened {dirPath}{gameEnded.CurrentGameFile}");
 
                             break;
                         // Handle end game case.
