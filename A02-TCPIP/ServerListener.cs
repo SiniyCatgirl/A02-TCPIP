@@ -3,7 +3,9 @@
 *	PROJECT         :   A02 - TCP/IP
 *   PROGRAMMER      :   Jonathan Paventi, Joshua Visentin, Trent Beitz
 *   FIRST VERSION   :   February 10, 20206
-*   DESCRIPTION     :   
+*   DESCRIPTION     :   This file contains the logic for the listener on the Server. 
+*                       It uses a loop controlled by a cancellation token to listen and
+*                       connect Clients to the Server.
 */
 
 using System.Net;
@@ -15,7 +17,7 @@ namespace A02_TCPIP {
 
         /*
         Method        : StartListener
-        Description   : this listens for the client to send it messages and direcs what to do wih them
+        Description   : this listens for the client to send it messages and directs what to do wih them
         Parameters    : CancellationToken ct    :   this is passed to gracefully shut down the listener for the server
         Return Values : Task                    :   As an Async method, it is required to return
                                                     a task. This allows the method to return control
@@ -24,6 +26,7 @@ namespace A02_TCPIP {
         internal async Task Listener(CancellationToken ct) {
             TcpListener server = null;
 
+            // get an parse the data in the AppConfig
             string serverIP = ConfigurationManager.AppSettings["ServerIP"];
             string serverPortStr = ConfigurationManager.AppSettings["ServerPort"];
             string serverBufferSize = ConfigurationManager.AppSettings["BufferSize"];
@@ -39,6 +42,7 @@ namespace A02_TCPIP {
 
                 TcpClient client = new TcpClient();
 
+                // loop that listens for Client requests
                 while (!ct.IsCancellationRequested) {
                     client = await server.AcceptTcpClientAsync();
 

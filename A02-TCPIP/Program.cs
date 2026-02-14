@@ -3,7 +3,7 @@
 *	PROJECT         :   A02 - TCP/IP
 *   PROGRAMMER      :   Jonathan Paventi, Joshua Visentin, Trent Beitz
 *   FIRST VERSION   :   February 10, 20206
-*   DESCRIPTION     :   Creates Cancellation tioken and creates and starts the server listener task
+*   DESCRIPTION     :   Creates Cancellation token and creates and starts the server listener task
 */
 
 namespace A02_TCPIP {

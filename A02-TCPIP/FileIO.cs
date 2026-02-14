@@ -3,7 +3,7 @@
 *	PROJECT         :   A02 - TCP/IP
 *   PROGRAMMER      :   Jonathan Paventi, Joshua Visentin, Trent Beitz
 *   FIRST VERSION   :   February 10, 20206
-*   DESCRIPTION     :   Handels All FileIO
+*   DESCRIPTION     :   Handles All FileIO
 */
 
 namespace A02_TCPIP {
@@ -11,9 +11,9 @@ namespace A02_TCPIP {
 
         /*
         Method        : GetListOfFiles
-        Description   : Retrevies the string files and puts them into a list
-        Parameters    : string directory    :   
-        Return Values : List<string>        : 
+        Description   : Retrieves the string files and puts them into a list
+        Parameters    : string directory    :   The string which contains the path to the directory
+        Return Values : List<string>        :   A list of available paths to the files needed for the Server
         */
         internal static List<string> GetListOfFiles(string directory){ 
             return Directory.GetFiles(directory, "*.txt").ToList();
@@ -21,9 +21,9 @@ namespace A02_TCPIP {
 
         /*
         Method        : GetStringToGuess
-        Description   : Pulls the sring of 30 characters from the file and returns the String
+        Description   : Pulls the string of 30 characters from the file and returns the String
         Parameters    : string path     :   where the file wth the string to guess from is located
-        Return Values : string          :
+        Return Values : string          :   Returns the word that the user entered as their guess.
         */
         internal static string GetStringToGuess(string path){ 
             string stringGuessWord = string.Empty;
@@ -39,8 +39,8 @@ namespace A02_TCPIP {
         /*
         Method        : GetAmountOfWords
         Description   : pulls the string from the second line of the txt file convers it to a int and sends it back
-        Parameters    : string path     :   
-        Return Values : int             :
+        Parameters    : string path     :   The string that contains the path to the file
+        Return Values : int             :   The amount of words that are contained in the file to be guessed
         */
         internal static int GetAmountOfWords(string path){
             int amount = -1;

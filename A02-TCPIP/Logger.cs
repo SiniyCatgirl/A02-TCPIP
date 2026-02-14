@@ -34,7 +34,7 @@ namespace A02_TCPIP {
 
         /*
         Method        : DisplayMessage
-        Description   : displayes any messages to the console window
+        Description   : displays any messages to the console window
         Parameters    : string msg      :   message to display to user
         Return Values : N/A
         */

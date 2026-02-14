@@ -65,7 +65,7 @@ namespace A02_TCPIP {
         // Constructor
         /*
         Constructor   : GameState
-        Description   : Initilizes a new instance of a Gamestate Object
+        Description   : Initializes a new instance of a GameState Object
         Parameters    : string path    :   the path to the chosen string file
         Return Values : N/A
         */
@@ -97,8 +97,8 @@ namespace A02_TCPIP {
 
         /*
         Method        : AddGuess
-        Description   : takes the users inpu and add it to a list of the guesses
-        Parameters    : string guess    :   the sers inputed guess
+        Description   : takes the users input and add it to a list of the guesses
+        Parameters    : string guess    :   the string inputted guess
         Return Values : N/A
         */
         internal void AddGuess(string guess) {
@@ -115,11 +115,11 @@ namespace A02_TCPIP {
         */
         private void PickNewFile(string currentFile){ 
             if (currentFile != string.Empty) previousGameFiles.Add(currentFile);
-            if (previousGameFiles.Count != listOfGameFiles.Count) {
+            if (previousGameFiles.Count != listOfGameFiles.Count) {     // ensures that there are new games for the user to play
                 Random rand = new Random();
                 string newFile = string.Empty;
 
-                do {
+                do {        // iterates through this until the next file that the user has not played is selected
                     int index = rand.Next(0, listOfGameFiles.Count);
                     newFile = listOfGameFiles[index];
                 } while(previousGameFiles.Contains(newFile));
