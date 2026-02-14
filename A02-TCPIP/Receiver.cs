@@ -122,8 +122,13 @@ namespace A02_TCPIP {
                             Program.clients.TryGetValue(gameIDToEnd, out gameEnded);
                             Logger.LogMessage($"New game requested: {gameEnded.CurrentGameFile}, on Client ID: {gameIDToEnd}");
                             gameEnded.NewGame();    // erases current game statistics (not ID or games played)
-                            response = Defines.GAME_OVER_NEWGAME_PREFIX + gameEnded.GetClue + gameEnded.GetWordsToGuess;
-                            Logger.LogMessage($"Opened {dirPath}{gameEnded.CurrentGameFile}");
+                            if(gameEnded.CurrentGameFile != string.Empty) { 
+                                response = Defines.GAME_OVER_NEWGAME_PREFIX + gameEnded.GetClue + gameEnded.GetWordsToGuess;
+                                Logger.LogMessage($"Opened {dirPath}{gameEnded.CurrentGameFile}");
+                            } else {
+                                response = Defines.GAME_OVER_NO_MORE_GAMES_PREFIX;
+                                Logger.LogMessage($"No more games for player id: {gameEnded.GameID}");
+                            }
 
                             break;
                         // Handle end game case.

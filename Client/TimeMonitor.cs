@@ -19,7 +19,6 @@ namespace Client {
         // Constructor
         public TimeMonitor(GameWindow gameWin) {
             gm = gameWin;
-            //ResetTimer();
         }
 
         /*
@@ -63,19 +62,6 @@ namespace Client {
             }
 
             return;
-        }
-
-        ///*
-        //Method        : ResetTime()
-        //Description   : Resets the time used by the game
-        //Parameters    : N/A
-        //Return Values : N/A
-        //*/
-        internal void ResetTimer()
-        {
-            //timeRemaining = long.Parse(ConfigurationManager.AppSettings["GameTimeLimit"]);
-            if (timer != null) timer.Reset();
-            //gm.UpdateTimer(timeRemaining.ToString());
         }
     }
 }

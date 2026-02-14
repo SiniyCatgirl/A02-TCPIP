@@ -125,6 +125,8 @@ namespace A02_TCPIP {
                 } while(previousGameFiles.Contains(newFile));
 
                 currentGameFile = newFile;
+            } else { 
+                currentGameFile = string.Empty;
             }
 
             return;

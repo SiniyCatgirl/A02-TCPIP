@@ -51,12 +51,16 @@ namespace Client {
         Return Values : N/A
         */
         internal void CancelToken() {
-            isRunning.Cancel();
-            isRunning.Dispose();
-            isRunning = null;
-            cts.Cancel();
-            cts.Dispose();
-            cts = null;
+            if (isRunning != null) { 
+                isRunning.Cancel();
+                isRunning.Dispose();
+                isRunning = null;
+            }
+            if (cts != null) {
+                cts.Cancel();
+                cts.Dispose();
+                cts = null;
+            }
         }
 
         /*
@@ -328,13 +332,7 @@ namespace Client {
         Return Values : N/A
         */
         protected override void OnClosing(CancelEventArgs e) {
-            if (cts != null) {
-                cts.Cancel();
-                listenerTask.Wait(2000);
-                cts.Dispose();
-                listenerTask = null;
-                cts = null;
-            }
+            CancelToken();
 
             base.OnClosing(e);
 

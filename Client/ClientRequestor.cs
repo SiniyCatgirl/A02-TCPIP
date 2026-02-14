@@ -157,6 +157,12 @@ namespace Client {
                                 }
 
                                 break;
+                            case string t when t.StartsWith(Defines.GAME_OVER_NO_MORE_GAMES_PREFIX):
+                                //Cancel tasks and close game window.
+                                gm.ShowPopup("No more games left to play.\nGood Job!\nClosing Application");
+                                gm.Close();
+
+                                break;
                         }
 
                         break;
