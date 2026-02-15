@@ -5,7 +5,6 @@
 *   FIRST VERSION   :   February 10, 20206
 *   DESCRIPTION     :   This window contains the logic for the MainWindow. It maintains the UI Task in order to update independently.
 */
-
 using SharedDefines;
 using System;
 using System.ComponentModel;
@@ -26,14 +25,12 @@ namespace Client {
         private Task listenerTask;
         private TimeMonitor timeMonitor;
         private Stopwatch sw;
-        
         // Getter
         public Guid GameID {
             get{
                 return clientGameID;
             }
         }
-        
         // Default constructor
         public GameWindow() {
             InitializeComponent();
@@ -43,40 +40,6 @@ namespace Client {
 
             return;
         }
-
-        /*
-        Method        : CancelToken
-        Description   : This cancels and disposes of the token, setting the variable to null
-        Parameters    : N/A
-        Return Values : N/A
-        */
-        internal void CancelToken() {
-            if (isRunning != null) { 
-                isRunning.Cancel();
-                isRunning.Dispose();
-                isRunning = null;
-            }
-            if (cts != null) {
-                cts.Cancel();
-                cts.Dispose();
-                cts = null;
-            }
-        }
-
-        /*
-        Method        : CloseGame
-        Description   : Closes the game.
-        Parameters    : N/A
-        Return Values : N/A
-        */
-        public void CloseGame() {
-            Window game = (Application.Current.MainWindow as GameWindow);
-
-            if (game != null) game.Close();
-
-            return;
-        }
-
         /*
         Method        : File_Exit_Click
         Description   : Handles the user clicking exit in the file menu
@@ -89,7 +52,6 @@ namespace Client {
 
             return;
         }
-
         /*
         Method        : Edit_Config_Click
         Description   : Handles the user clicking Config in the Edit menu
@@ -103,7 +65,6 @@ namespace Client {
 
             return;
         }
-
         /*
         Method        : Help_About_Click
         Description   : Handles the user clicking the About under the Help menu
@@ -117,7 +78,6 @@ namespace Client {
 
             return;
         }
-
         /*
         Method        : btnSubmit_Click
         Description   : When the user clicks submit, sends text to server and clears the textbox
@@ -134,7 +94,6 @@ namespace Client {
 
             return;
         }
-
         /*
         Method        : btnStart_Click
         Description   : When the user clicks the start button, it turns the button off, sends an
@@ -156,7 +115,88 @@ namespace Client {
 
             return;
         }
+        /*
+        Method        : OnClosing
+        Description   : This will kill any leftover tasks that were not properly killed by the Client
+        Parameters    : CancelEventArgs e   :   Cancels anything still running
+        Return Values : N/A
+        */
+        protected override void OnClosing(CancelEventArgs e) {
+            CancelToken();
 
+            base.OnClosing(e);
+
+            if (Application.Current != null) Application.Current.Shutdown();
+
+            return;
+        }
+        /*
+        Method        : RunOnUIThread
+        Description   : Takes whatever action you give it as a lambda and runs it on the UI thread or
+                        hands it off to a dispatcher
+        Parameters    : Action action       :   The action used in the lambda call
+        Return Values : N/A
+        */
+        private void RunOnUIThread(Action action) {
+            //If currently on UI thread/task, update controls.
+            if(Application.Current.Dispatcher.CheckAccess()) {
+                action();
+            } else {
+                //If not on UI thread/task invoke update with dispatcher.
+                Application.Current.Dispatcher.Invoke(() => { 
+                    action();
+                });
+            }
+
+            return;
+        }
+        /*
+        Method        : AddCorrectWord
+        Description   : Adds the correct word to the relevant textbox on the UI
+        Parameters    : string word     :   The word given to it by the Server as correct
+        Return Values : N/A
+        */
+        internal void AddCorrectWord(string word) {
+            RunOnUIThread(() => {
+                lbCorrectWords.Items.Add(word);
+                UpdateUI(txtStringClue.Text, --wordsLeft);
+            });
+
+            if (wordsLeft <= 0) {
+                ShowPopup("you win");
+                SendToServer(Defines.GAME_OVER_WON_PREFIX, string.Empty);
+            }
+
+            return;
+        }
+        /*
+        Method        : AddIncorrectWord
+        Description   : Adds the incorrect word to the relevant textbox on the UI
+        Parameters    : string word     :   The word given to it by the Server as incorrect
+        Return Values : N/A
+        */
+        internal void AddIncorrectWord(string word) {
+            RunOnUIThread(() => {
+                lbIncorrectWords.Items.Add(word);
+            });
+
+            return;
+        }
+        /*
+        Method        : UpdateTimer
+        Description   : Updates the timer textbox on the UI
+        Parameters    : string time     :   Contains the time in string format to print
+        Return Values : N/A
+        */
+        internal void UpdateTimer(string time) {
+            if (clientGameID != Guid.Empty) {
+                RunOnUIThread(() => {
+                    txtTimer.Text = time;
+                });
+            }
+
+            return;
+        }
         /*
         Method        : ToggleButton
         Description   : Toggles the start button on/off in case an error occurs with sending an ID
@@ -170,7 +210,61 @@ namespace Client {
 
             return;
         }
+        /*
+        Method        : UpdateUI
+        Description   : Updates the UI in the window, specifically the words left and clue
+        Parameters    : string clue     :   The string containing the scrambled word string
+                        int wordsLeft   :   The number of words contained within clue
+        Return Values : N/A
+        */
+        internal void UpdateUI(string clue, int wordsLeft) {
+            RunOnUIThread(() => {
+                if (this.wordsLeft == -1) this.wordsLeft = wordsLeft;
+                txtStringClue.Text = clue;
+                txtWordsLeft.Text = wordsLeft.ToString();
+            });
 
+            return;
+        }
+        /*
+        Method        : ResetUI
+        Description   : Resets the window UI for a new game
+        Parameters    : N/A
+        Return Values : N/A
+        */
+        internal void ResetUI() {
+            wordsLeft = -1;
+            txtStringClue.Text = string.Empty;
+            txtTimer.Text = string.Empty;
+            txtGuess.Text = string.Empty;
+            txtWordsLeft.Text = string.Empty;
+            lbCorrectWords.Items.Clear();
+            lbIncorrectWords.Items.Clear();
+            if (clientGameID != Guid.Empty) {
+                isRunning.Cancel();
+                isRunning = new CancellationTokenSource();
+                timeMonitor = new TimeMonitor(this);
+                timeMonitor.MonitorTime(cts.Token, isRunning.Token, sw);
+            }
+
+            return;
+        }
+        /*
+        Method        : SetID
+        Description   : Stores the ID generated by the Server that is used to identify itself when
+                        communicating to the server.
+        Parameters    : Guid id     :   The ID that identifies the Client
+        Return Values : N/A
+        */
+        internal void SetID(Guid id) {
+            RunOnUIThread(() => {
+                clientGameID = id;
+                ToggleButton(false);
+                timeMonitor.MonitorTime(cts.Token, isRunning.Token, sw);
+            });
+
+            return;
+        }
         /*
         Method        : SendToServer
         Description   : Handles all the communication between the client and the server. Creates a new task every
@@ -195,166 +289,6 @@ namespace Client {
 
             return;
         }
-
-        /*
-        Method        : ResetUI
-        Description   : Resets the window UI for a new game
-        Parameters    : N/A
-        Return Values : N/A
-        */
-        internal void ResetUI() {
-            wordsLeft = -1;
-            txtStringClue.Text = string.Empty;
-            txtTimer.Text = string.Empty;
-            txtGuess.Text = string.Empty;
-            txtWordsLeft.Text = string.Empty;
-            lbCorrectWords.Items.Clear();
-            lbIncorrectWords.Items.Clear();
-            if (clientGameID != Guid.Empty) {
-                isRunning.Cancel();
-                isRunning = new CancellationTokenSource();
-                timeMonitor = new TimeMonitor(this);
-                timeMonitor.MonitorTime(cts.Token, isRunning.Token, sw);
-            }
-
-            return;
-        }
-
-        /*
-        Method        : UpdateUI
-        Description   : Updates the UI in the window, specifically the words left and clue
-        Parameters    : string clue     :   The string containing the scrambled word string
-                        int wordsLeft   :   The number of words contained within clue
-        Return Values : N/A
-        */
-        internal void UpdateUI(string clue, int wordsLeft) {
-            RunOnUIThread(() => {
-                if (this.wordsLeft == -1) this.wordsLeft = wordsLeft;
-                txtStringClue.Text = clue;
-                txtWordsLeft.Text = wordsLeft.ToString();
-            });
-
-            return;
-        }
-
-        /*
-        Method        : SetID
-        Description   : Stores the ID generated by the Server that is used to identify itself when
-                        communicating to the server.
-        Parameters    : Guid id     :   The ID that identifies the Client
-        Return Values : N/A
-        */
-        internal void SetID(Guid id) {
-            RunOnUIThread(() => {
-                clientGameID = id;
-                ToggleButton(false);
-                timeMonitor.MonitorTime(cts.Token, isRunning.Token, sw);
-            });
-
-            return;
-        }
-
-        /*
-        Method        : UpdateTimer
-        Description   : Updates the timer textbox on the UI
-        Parameters    : string time     :   Contains the time in string format to print
-        Return Values : N/A
-        */
-        internal void UpdateTimer(string time) {
-            if (clientGameID != Guid.Empty) {
-                RunOnUIThread(() => {
-                    txtTimer.Text = time;
-                });
-            }
-
-            return;
-        }
-
-        /*
-        Method        : RunOnUIThread
-        Description   : Takes whatever action you give it as a lambda and runs it on the UI thread or
-                        hands it off to a dispatcher
-        Parameters    : Action action       :   The action used in the lambda call
-        Return Values : N/A
-        */
-        private void RunOnUIThread(Action action) {
-            //If currently on UI thread/task, update controls.
-            if(Application.Current.Dispatcher.CheckAccess()) {
-                action();
-            } else {
-                //If not on UI thread/task invoke update with dispatcher.
-                Application.Current.Dispatcher.Invoke(() => { 
-                    action();
-                });
-            }
-
-            return;
-        }
-
-        /*
-        Method        : AddCorrectWord
-        Description   : Adds the correct word to the relevant textbox on the UI
-        Parameters    : string word     :   The word given to it by the Server as correct
-        Return Values : N/A
-        */
-        internal void AddCorrectWord(string word) {
-            RunOnUIThread(() => {
-                lbCorrectWords.Items.Add(word);
-                UpdateUI(txtStringClue.Text, --wordsLeft);
-            });
-
-            if (wordsLeft <= 0) {
-                ShowPopup("you win");
-                SendToServer(Defines.GAME_OVER_WON_PREFIX, string.Empty);
-            }
-
-            return;
-        }
-
-        /*
-        Method        : AddIncorrectWord
-        Description   : Adds the incorrect word to the relevant textbox on the UI
-        Parameters    : string word     :   The word given to it by the Server as incorrect
-        Return Values : N/A
-        */
-        internal void AddIncorrectWord(string word) {
-            RunOnUIThread(() => {
-                lbIncorrectWords.Items.Add(word);
-            });
-
-            return;
-        }
-
-        /*
-        Method        : OnClosing
-        Description   : This will kill any leftover tasks that were not properly killed by the Client
-        Parameters    : CancelEventArgs e   :   Cancels anything still running
-        Return Values : N/A
-        */
-        protected override void OnClosing(CancelEventArgs e) {
-            CancelToken();
-
-            base.OnClosing(e);
-
-            if (Application.Current != null) Application.Current.Shutdown();
-
-            return;
-        }
-
-        /*
-        Method        : ShowPopup
-        Description   : Displays a popup for the user to see to inform them of something
-        Parameters    : string msd      :   The message to be displayed in the popup
-        Return Values : N/A
-        */
-        internal void ShowPopup(string msg){ 
-            RunOnUIThread(() => {
-                MessageBox.Show(msg);
-            });
-
-            return;
-        }
-
         /*
         Method        : PromptYesNo
         Description   : Prompts the user with a message box that requires a yes or no response
@@ -371,7 +305,19 @@ namespace Client {
 
             return result;
         }
+        /*
+        Method        : ShowPopup
+        Description   : Displays a popup for the user to see to inform them of something
+        Parameters    : string msd      :   The message to be displayed in the popup
+        Return Values : N/A
+        */
+        internal void ShowPopup(string msg){ 
+            RunOnUIThread(() => {
+                MessageBox.Show(msg);
+            });
 
+            return;
+        }
         /*
         Method        : ShowDebugPopup
         Description   : Used for debugging purposes to populate message boxes
@@ -382,6 +328,37 @@ namespace Client {
             RunOnUIThread(() => {
                 MessageBox.Show(msg, "Debug", MessageBoxButton.OK, MessageBoxImage.Information);
             });
+
+            return;
+        }
+        /*
+        Method        : CancelToken
+        Description   : This cancels and disposes of the token, setting the variable to null
+        Parameters    : N/A
+        Return Values : N/A
+        */
+        internal void CancelToken() {
+            if (isRunning != null) { 
+                isRunning.Cancel();
+                isRunning.Dispose();
+                isRunning = null;
+            }
+            if (cts != null) {
+                cts.Cancel();
+                cts.Dispose();
+                cts = null;
+            }
+        }
+        /*
+        Method        : CloseGame
+        Description   : Closes the game.
+        Parameters    : N/A
+        Return Values : N/A
+        */
+        public void CloseGame() {
+            Window game = (Application.Current.MainWindow as GameWindow);
+
+            if (game != null) game.Close();
 
             return;
         }
